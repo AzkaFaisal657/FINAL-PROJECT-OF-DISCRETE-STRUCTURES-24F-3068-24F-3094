@@ -1,0 +1,2 @@
+F001,Dr. Qamar uz Zaman,Professor,Computer Science
+F002,Dr. Affan Rauf,Associate Professor,Computer Science

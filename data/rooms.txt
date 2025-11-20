@@ -1,0 +1,2 @@
+R101,Lecture Hall,100,Available
+L201,Computer Lab,40,Available

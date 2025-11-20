@@ -122,25 +122,20 @@ void UniversitySystem::displayCoursesBySemester(int semester) const {
 }
 
 void UniversitySystem::displayStudentInfo(string studentId) const {
-    // Temporarily commented out - getStudent() is non-const but function is const
-    // Student* student = getStudent(studentId);
-    // if (student) {
-    //     student->display();
-    // }
-
-    // Temporary message until fully fixed
-    cout << "Student ID: " << studentId << " - Info display temporarily disabled (Module 1 completed successfully)" << endl;
+    Student* student = getStudent(studentId);
+    if (student) {
+        student->display();
+    }
 }
 
 void UniversitySystem::demonstrateAllModules() {
     cout << "\n" << string(60, '=') << endl;
     cout << "   FAST UNIVERSITY - ALL MODULES DEMONSTRATION" << endl;
     cout << string(60, '=') << endl;
-#if 0   // Temporarily disable unfinished modules until they are implemented
+
     // Run all module demonstrations
     CourseScheduler::demonstrateScheduling();
     CombinationsModule::demonstrateCombinations();
-
     InductionModule::demonstrateStrongInduction();
 
     LogicEngine logic;
@@ -156,7 +151,6 @@ void UniversitySystem::demonstrateAllModules() {
     EfficiencyModule::demonstrateMemoization();
 
     TestModule::runAllTests();
-#endif
 
     cout << "\n" << string(60, '=') << endl;
     cout << "   ALL 12 MODULES DEMONSTRATED SUCCESSFULLY!" << endl;

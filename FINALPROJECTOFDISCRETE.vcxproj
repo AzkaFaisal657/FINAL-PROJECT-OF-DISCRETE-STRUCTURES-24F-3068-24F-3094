@@ -135,21 +135,44 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AutomatedProof.cpp" />
+    <ClCompile Include="CombinationsModule.cpp" />
+    <ClCompile Include="ConflictDetector.cpp" />
     <ClCompile Include="Course.cpp" />
     <ClCompile Include="CourseScheduler.cpp" />
+    <ClCompile Include="EfficiencyModule.cpp" />
     <ClCompile Include="Faculty.cpp" />
+    <ClCompile Include="FileHandler.cpp" />
+    <ClCompile Include="FunctionsModule.cpp" />
+    <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="InductionModule.cpp" />
+    <ClCompile Include="LogicEngine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RelationsModule.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="SetOperations.cpp" />
     <ClCompile Include="Student.cpp" />
+    <ClCompile Include="TestModule.cpp" />
     <ClCompile Include="UniversitySystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AutomatedProof.h" />
+    <ClInclude Include="CombinationsModule.h" />
+    <ClInclude Include="ConflictDetector.h" />
     <ClInclude Include="Course.h" />
     <ClInclude Include="CourseScheduler.h" />
+    <ClInclude Include="EfficiencyModule.h" />
     <ClInclude Include="Faculty.h" />
     <ClInclude Include="FileHandler.h" />
+    <ClInclude Include="FunctionsModule.h" />
+    <ClInclude Include="GUI.h" />
+    <ClInclude Include="InductionModule.h" />
+    <ClInclude Include="LogicEngine.h" />
+    <ClInclude Include="RelationsModule.h" />
     <ClInclude Include="Room.h" />
+    <ClInclude Include="SetOperations.h" />
     <ClInclude Include="Student.h" />
+    <ClInclude Include="TestModule.h" />
     <ClInclude Include="UniversitySystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
