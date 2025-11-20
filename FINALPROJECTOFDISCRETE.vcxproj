@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Course.cpp" />
+    <ClCompile Include="CourseScheduler.cpp" />
     <ClCompile Include="Faculty.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Room.cpp" />
@@ -144,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Course.h" />
+    <ClInclude Include="CourseScheduler.h" />
     <ClInclude Include="Faculty.h" />
     <ClInclude Include="FileHandler.h" />
     <ClInclude Include="Room.h" />
