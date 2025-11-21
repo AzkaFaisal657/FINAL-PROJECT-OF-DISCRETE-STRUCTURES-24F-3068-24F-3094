@@ -1,16 +1,27 @@
 #include "UniversitySystem.h"
-#include "../Modules/Module1_CourseScheduling/CourseScheduler.h"
-#include "../Modules/Module2_Combinations/CombinationsModule.h"
-#include "../Modules/Module3_Induction/InductionModule.h"
-#include "../Modules/Module4_Logic/LogicEngine.h"
-#include "../Modules/Module5_Sets/SetOperations.h"
-#include "../Modules/Module6_Relations/RelationsModule.h"
-#include "../Modules/Module7_Functions/FunctionsModule.h"
-#include "../Modules/Module8_Proofs/AutomatedProof.h"
-#include "../Modules/Module9_Conflicts/ConflictDetector.h"
-#include "../Modules/Module10_Efficiency/EfficiencyModule.h"
-#include "../Modules/Module12_Testing/TestModule.h"
+//#include "../Modules/Module1_CourseScheduling/CourseScheduler.h"
+//#include "../Modules/Module2_Combinations/CombinationsModule.h"
+//#include "../Modules/Module3_Induction/InductionModule.h"
+//#include "../Modules/Module4_Logic/LogicEngine.h"
+//#include "../Modules/Module5_Sets/SetOperations.h"
+//#include "../Modules/Module6_Relations/RelationsModule.h"
+//#include "../Modules/Module7_Functions/FunctionsModule.h"
+//#include "../Modules/Module8_Proofs/AutomatedProof.h"
+//#include "../Modules/Module9_Conflicts/ConflictDetector.h"
+//#include "../Modules/Module10_Efficiency/EfficiencyModule.h"
+//#include "../Modules/Module12_Testing/TestModule.h"
 #include <iostream>
+#include "CourseScheduler.h"
+#include "CombinationsModule.h"
+#include "InductionModule.h"
+#include "LogicEngine.h"
+#include "SetOperations.h"
+#include "RelationsModule.h"
+#include "FunctionsModule.h"
+#include "AutomatedProof.h"
+#include "ConflictDetector.h"
+#include "EfficiencyModule.h"
+#include "TestModule.h"
 using namespace std;
 
 UniversitySystem::UniversitySystem() {}
@@ -121,12 +132,12 @@ void UniversitySystem::displayCoursesBySemester(int semester) const {
     }
 }
 
-void UniversitySystem::displayStudentInfo(string studentId) const {
-    Student* student = getStudent(studentId);
-    if (student) {
-        student->display();
-    }
-}
+//void UniversitySystem::displayStudentInfo(string studentId) const {
+//    Student* student = getStudent(studentId);
+//    if (student) {
+//        student->display();
+//    }
+//}        //tried commneting out errors , student ka msla here 
 
 void UniversitySystem::demonstrateAllModules() {
     cout << "\n" << string(60, '=') << endl;
