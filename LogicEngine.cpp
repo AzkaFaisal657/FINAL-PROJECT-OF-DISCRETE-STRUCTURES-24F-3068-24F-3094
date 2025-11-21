@@ -10,7 +10,7 @@ void LogicEngine::addRule(string condition, string action, string ruleType) {
     }
 }
 
-bool LogicEngine::checkRule(string fact) {
+bool LogicEngine::checkRule(string fact) const {
     for (int i = 0; i < ruleCount; i++) {
         if (rules[i].condition == fact) {
             cout << "Rule triggered: " << rules[i].action << endl;
@@ -45,9 +45,9 @@ void LogicEngine::demonstrateLogicEngine() {
     engine.addRule("Course_has_lab", "Lab room must be assigned", "Requirement");
 
     cout << "Rules defined:" << endl;
-    cout << "1. If Prof X teaches CS101 → Lab must be Lab A" << endl;
-    cout << "2. If Student enrolled in CS101 → Must complete CS1002" << endl;
-    cout << "3. If Course has lab → Lab room must be assigned" << endl;
+    cout << "1. If Prof X teaches CS101 -> Lab must be Lab A" << endl;
+    cout << "2. If Student enrolled in CS101 -> Must complete CS1002" << endl;
+    cout << "3. If Course has lab -> Lab room must be assigned" << endl;
 
     cout << "\n--- MODUS PONENS EXAMPLE ---" << endl;
     cout << "Rule: If student passes CS1002, then student can enroll in CS1004" << endl;
@@ -66,7 +66,7 @@ void LogicEngine::demonstrateLogicEngine() {
     cout << "Translation: All students enrolled in CS101 must have completed CS1002" << endl;
 
     cout << "\n--- INFERENCE CHAINS ---" << endl;
-    cout << "Chain: CS1002 → CS1004 → CS2001 → CS2005" << endl;
+    cout << "Chain: CS1002 -> CS1004 -> CS2001 -> CS2005" << endl;
     cout << "Given: Student completed CS1002" << endl;
     cout << "Infer: Student can potentially reach CS2005" << endl;
 }

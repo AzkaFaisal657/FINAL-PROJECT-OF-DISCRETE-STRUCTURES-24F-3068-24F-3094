@@ -1,8 +1,8 @@
 #pragma once
-#include "../Core/Course.h"
-#include "../Core/Student.h"
-#include "../Core/Faculty.h"
-#include "../Core/Room.h"
+#include "Course.h"
+#include "Student.h"
+#include "Faculty.h"
+#include "Room.h"
 #include <string>
 #include <vector>
 using namespace std;

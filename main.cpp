@@ -1,4 +1,4 @@
-#include "Core/UniversitySystem.h"
+#include "UniversitySystem.h"
 #include "GUI.h"
 #include <iostream>
 using namespace std;

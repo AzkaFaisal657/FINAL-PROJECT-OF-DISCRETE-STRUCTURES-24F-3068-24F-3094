@@ -1,12 +1,11 @@
 #pragma once
-#pragma once
 #ifndef GUI_H
 #define GUI_H
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
-#include "Core/UniversitySystem.h"
+#include "UniversitySystem.h"
 #include <iostream>
 #include <vector>
 #include <sstream>

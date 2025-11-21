@@ -1,4 +1,7 @@
 #pragma once
+#ifndef UNIVERSITY_SYSTEM_H
+#define UNIVERSITY_SYSTEM_H
+
 #include "Course.h"
 #include "Student.h"
 #include "Faculty.h"
@@ -22,10 +25,13 @@ public:
     void loadAllData();
     void saveAllData();
 
-    Course* getCourse(string code);
-    Student* getStudent(string id);
-    Faculty* getFaculty(string id);
-    Room* getRoom(string id);
+    // FIXED: Added both const and non-const versions
+    Course* getCourse(const string& code);
+    Course* getCourse(const string& code) const;
+    Student* getStudent(const string& id);
+    const Student* getStudent(const string& id) const;
+    Faculty* getFaculty(const string& id) const;
+    Room* getRoom(const string& id) const;
 
     bool enrollStudent(string studentId, string courseCode, string& errorMsg);
     bool canStudentEnroll(string studentId, string courseCode, string& reason);
@@ -48,3 +54,5 @@ public:
         return (index >= 0 && index < students.size()) ? students[index] : nullptr;
     }
 };
+
+#endif

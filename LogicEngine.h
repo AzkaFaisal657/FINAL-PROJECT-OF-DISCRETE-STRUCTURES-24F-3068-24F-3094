@@ -17,7 +17,7 @@ private:
 public:
     LogicEngine();
     void addRule(string condition, string action, string ruleType);
-    bool checkRule(string fact);
+    bool checkRule(string fact) const;
     void performModusPonens(string p, string implication, string& conclusion);
     void performModusTollens(string notQ, string implication, string& conclusion);
     void demonstrateLogicEngine();
