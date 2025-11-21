@@ -1,2 +1,42 @@
-R101,Lecture Hall,100,Available
+R101,Lecture Hall,120,Available
+R102,Lecture Hall,120,Available
+R103,Lecture Hall,100,Available
+R104,Lecture Hall,100,Available
+R105,Lecture Hall,80,Available
+R106,Lecture Hall,80,Available
+R107,Lecture Hall,60,Available
+R108,Lecture Hall,60,Available
+R109,Lecture Hall,50,Available
+R110,Lecture Hall,50,Available
+R111,Lecture Hall,40,Available
+R112,Lecture Hall,40,Available
 L201,Computer Lab,40,Available
+L202,Computer Lab,40,Available
+L203,Computer Lab,40,Available
+L204,Computer Lab,40,Available
+L205,Computer Lab,35,Available
+L206,Computer Lab,35,Available
+L207,AI Lab,30,Available
+L208,AI Lab,30,Available
+L209,Software Lab,35,Available
+L210,Software Lab,35,Available
+L211,Networking Lab,25,Available
+L212,Database Lab,30,Available
+L213,Graphics Lab,20,Available
+L214,Research Lab,15,Available
+L215,Project Lab,25,Available
+L216,Maker Space,50,Available
+FSM1,FSM Room,100,Available
+FSM2,FSM Room,80,Available
+FSM3,FSM Room,60,Available
+FSM4,FSM Room,60,Available
+FSM5,FSM Room,40,Available
+FSM6,FSM Room,40,Available
+FSM7,FSM Room,30,Available
+S301,Seminar Room,50,Available
+S302,Seminar Room,50,Available
+S303,Seminar Room,30,Available
+S304,Seminar Room,30,Available
+A401,Auditorium,300,Available
+A402,Auditorium,200,Available
+A403,Auditorium,150,Available
