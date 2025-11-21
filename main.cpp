@@ -1,15 +1,22 @@
-
+#include "Core/UniversitySystem.h"
+#include "GUI.h"
 #include <iostream>
 using namespace std;
 
 int main() {
-    cout << "====================================================" << endl;
-    cout << "   FAST UNIVERSITY - DISCRETE MATH MANAGEMENT SYSTEM" << endl;
-    cout << "   Complete Project with 12 Modules & SFML GUI" << endl;
-    cout << "====================================================" << endl;
+    cout << "FAST University - GUI Test" << endl;
+    cout << "==========================" << endl;
 
-    
+    UniversitySystem system;
+    system.loadAllData();
 
-    cout << "\nThank you for using FAST University System!" << endl;
+    cout << "\nStarting SFML GUI..." << endl;
+    cout << "Courses: " << system.getCourseCount() << endl;
+    cout << "Students: " << system.getStudentCount() << endl;
+    cout << "Faculty: " << system.getFacultyCount() << endl;
+
+    GUI gui(&system);
+    gui.run();
+
     return 0;
 }
