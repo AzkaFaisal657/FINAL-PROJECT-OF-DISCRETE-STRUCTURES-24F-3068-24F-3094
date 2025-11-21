@@ -34,10 +34,8 @@ public:
     void displayCoursesBySemester(int semester) const;
     void displayStudentInfo(string studentId) const;
 
-    // Module demonstrations
     void demonstrateAllModules();
 
-    // Getters
     int getCourseCount() const { return courses.size(); }
     int getStudentCount() const { return students.size(); }
     int getFacultyCount() const { return faculty.size(); }

@@ -1,2 +1,10 @@
-F001,Dr. Qamar uz Zaman,Professor,Computer Science
-F002,Dr. Affan Rauf,Associate Professor,Computer Science
+F001,Dr. Qamar uz Zaman,Professor
+F002,Dr. Affan Rauf,Associate Professor
+F003,Ms. Anmol Bilal,Lecturer
+F004,Dr. Muhammad Moazam Fraz,Professor
+F005,Dr. Naveed Ahmed,Associate Professor
+F006,Ms. Sarah Khan,Lecturer
+F007,Dr. Ali Hassan,Professor
+F008,Ms. Fatima Noor,Lecturer
+F009,Dr. Ahmed Raza,Associate Professor
+F010,Ms. Khadija Malik,Lecturer
