@@ -5,7 +5,6 @@
 #include <SFML/Graphics.hpp>
 #include "UniversitySystem.h"
 #include <vector>
-#include <functional>
 using namespace std;
 
 struct Button {
@@ -35,17 +34,17 @@ private:
     sf::Sprite logoSprite;
     bool logoLoaded = false;
 
+    // Window dimensions
+    const int WIN_W = 1600;
+    const int WIN_H = 950;
+
     enum State {
         MAIN_MENU, COURSE_MENU, STUDENT_MENU, DISCRETE_MENU,
-        // Course states
-        VIEW_COURSES, SEARCH_COURSE, ADD_COURSE,
-        // Student states  
-        VIEW_STUDENTS, STUDENT_DETAIL, ADD_STUDENT, ENROLLMENT_CHECK, ENROLL_STUDENT,
-        // Discrete Math states
+        VIEW_COURSES, SEARCH_COURSE, VIEW_STUDENTS, STUDENT_DETAIL,
+        ENROLLMENT_CHECK, ENROLL_STUDENT,
         SET_OPERATIONS, RELATIONS_MODULE, FUNCTIONS_MODULE, COMBINATIONS_MODULE,
         LOGIC_ENGINE, INDUCTION_MODULE, PROOFS_MODULE, SCHEDULING_MODULE,
         CONFLICT_CHECKER, EFFICIENCY_MODULE, TEST_MODULE,
-        // Other
         SYSTEM_INFO, EXIT_CONFIRM
     };
 
@@ -58,25 +57,27 @@ private:
     sf::Color statusColor;
     float statusTimer = 0;
 
-    // Input boxes
-    InputBox inputStudentId, inputStudentName, inputStudentSem;
-    InputBox inputCourseCode, inputCourseName, inputCourseCredits, inputCourseSem;
     InputBox inputSearchCode, inputEnrollStudent, inputEnrollCourse;
     InputBox* activeInput = nullptr;
 
-    // Colors
-    sf::Color bgColor{ 235, 245, 255 };
-    sf::Color navyColor{ 25, 50, 95 };
-    sf::Color lightBlue{ 180, 210, 245 };
-    sf::Color white{ 255, 255, 255 };
-    sf::Color black{ 30, 30, 30 };
-    sf::Color btnColor{ 55, 90, 140 };
-    sf::Color btnHover{ 85, 130, 190 };
-    sf::Color success{ 40, 160, 80 };
-    sf::Color error{ 200, 60, 60 };
+    // Professional Color Palette
+    sf::Color bgColor{ 240, 248, 255 };         // Alice Blue background
+    sf::Color headerColor{ 15, 35, 75 };        // Deep Navy header
+    sf::Color cardColor{ 255, 255, 255 };       // White cards
+    sf::Color primaryBtn{ 25, 85, 165 };        // Royal Blue buttons
+    sf::Color primaryHover{ 35, 115, 205 };     // Lighter blue hover
+    sf::Color secondaryBtn{ 70, 85, 105 };      // Slate gray
+    sf::Color secondaryHover{ 95, 115, 140 };   // Lighter slate
+    sf::Color accentColor{ 0, 150, 136 };       // Teal accent
+    sf::Color textDark{ 25, 35, 55 };           // Dark text
+    sf::Color textLight{ 255, 255, 255 };       // Light text
+    sf::Color textMuted{ 100, 115, 135 };       // Muted text
+    sf::Color successColor{ 40, 180, 100 };     // Green
+    sf::Color errorColor{ 220, 60, 60 };        // Red
+    sf::Color borderColor{ 200, 215, 230 };     // Light border
 
     vector<Button> buttons;
-    vector<string> outputLines; // For displaying results
+    vector<string> outputLines;
 
 public:
     GUI(UniversitySystem* sys);
@@ -90,9 +91,8 @@ private:
     void update(float dt);
     void render();
 
-    // Button/Input helpers
     void clearButtons();
-    Button& addBtn(string text, float x, float y, float w, float h, string action);
+    Button& addBtn(string text, float x, float y, float w, float h, string action, bool primary = true);
     void setupInput(InputBox& inp, float x, float y, float w, string placeholder, int maxLen = 20);
     void updateHover(sf::Vector2f pos);
     string clickButton(sf::Vector2f pos);
@@ -100,25 +100,22 @@ private:
     void typeChar(char c);
     void backspace();
 
-    // Drawing
     void drawText(string s, float x, float y, int sz, sf::Color c, bool bold = false);
-    void drawRect(float x, float y, float w, float h, sf::Color fill, sf::Color outline = sf::Color::Transparent, float thick = 0);
-    void drawHeader(string title);
+    void drawTextCentered(string s, float x, float y, float w, int sz, sf::Color c, bool bold = false);
+    void drawRect(float x, float y, float w, float h, sf::Color fill, sf::Color outline = sf::Color::Transparent, float thick = 0, float radius = 0);
+    void drawCard(float x, float y, float w, float h, string title = "");
+    void drawHeader();
     void drawInput(InputBox& inp);
-    void drawOutputPanel(float x, float y, float w, float h);
     void drawStatusBar();
 
-    // Screens
     void renderMainMenu();
     void renderCourseMenu();
     void renderStudentMenu();
     void renderDiscreteMenu();
     void renderViewCourses();
     void renderSearchCourse();
-    void renderAddCourse();
     void renderViewStudents();
     void renderStudentDetail();
-    void renderAddStudent();
     void renderEnrollmentCheck();
     void renderEnrollStudent();
     void renderSetOperations();
@@ -135,7 +132,6 @@ private:
     void renderSystemInfo();
     void renderExitConfirm();
 
-    // Actions
     void handleAction(string action);
     void setStatus(string msg, bool isError = false);
     void clearOutput();

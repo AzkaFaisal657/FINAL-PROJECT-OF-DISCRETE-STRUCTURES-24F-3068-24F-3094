@@ -19,7 +19,6 @@ bool CourseScheduler::checkPrerequisites(string courseCode, vector<string> compl
     CourseNode* course = findCourse(courseCode);
     if (!course) return false;
     if (course->visited) return true;
-
     course->visited = true;
 
     for (string prereq : course->prerequisites) {
@@ -30,7 +29,6 @@ bool CourseScheduler::checkPrerequisites(string courseCode, vector<string> compl
                 break;
             }
         }
-
         if (!found) {
             if (!checkPrerequisites(prereq, completedCourses)) {
                 return false;
@@ -49,6 +47,14 @@ CourseScheduler::CourseNode* CourseScheduler::findCourse(string code) {
     return nullptr;
 }
 
+// Helper to check if course is already in sequence
+bool isInSequence(const vector<string>& sequence, const string& course) {
+    for (const string& s : sequence) {
+        if (s == course) return true;
+    }
+    return false;
+}
+
 vector<vector<string>> CourseScheduler::generateValidSequences(int maxCourses) {
     vector<vector<string>> sequences;
 
@@ -56,52 +62,56 @@ vector<vector<string>> CourseScheduler::generateValidSequences(int maxCourses) {
     cout << "Maximum courses per sequence: " << maxCourses << endl;
 
     // Find courses with no prerequisites (starting points)
+    vector<vector<string>> currentSequences;
     for (const CourseNode& course : courses) {
         if (course.prerequisites.empty()) {
             vector<string> sequence;
             sequence.push_back(course.code);
-            sequences.push_back(sequence);
+            currentSequences.push_back(sequence);
         }
     }
 
-    // Expand sequences using DP
+    // Expand sequences using DP - NO DUPLICATES
     for (int depth = 1; depth < maxCourses; depth++) {
         vector<vector<string>> newSequences;
 
-        for (const vector<string>& sequence : sequences) {
-            string lastCourse = sequence.back();
-            CourseNode* last = findCourse(lastCourse);
+        for (const vector<string>& sequence : currentSequences) {
+            // Find courses that can be taken next
+            for (const CourseNode& nextCourse : courses) {
+                // FIXED: Skip if course already in sequence
+                if (isInSequence(sequence, nextCourse.code)) {
+                    continue;
+                }
 
-            if (last) {
-                // Find courses that have all prerequisites satisfied by current sequence
-                for (const CourseNode& nextCourse : courses) {
-                    bool allPrereqsSatisfied = true;
-
-                    for (const string& prereq : nextCourse.prerequisites) {
-                        bool found = false;
-                        for (const string& taken : sequence) {
-                            if (taken == prereq) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            allPrereqsSatisfied = false;
-                            break;
-                        }
+                // Check if all prerequisites are satisfied by current sequence
+                bool allPrereqsSatisfied = true;
+                for (const string& prereq : nextCourse.prerequisites) {
+                    if (!isInSequence(sequence, prereq)) {
+                        allPrereqsSatisfied = false;
+                        break;
                     }
+                }
 
-                    if (allPrereqsSatisfied) {
-                        vector<string> newSequence = sequence;
-                        newSequence.push_back(nextCourse.code);
-                        newSequences.push_back(newSequence);
-                    }
+                if (allPrereqsSatisfied) {
+                    vector<string> newSequence = sequence;
+                    newSequence.push_back(nextCourse.code);
+                    newSequences.push_back(newSequence);
                 }
             }
         }
 
         if (newSequences.empty()) break;
-        sequences = newSequences;
+
+        // Keep both current and new sequences (some paths may end early)
+        for (const auto& seq : currentSequences) {
+            sequences.push_back(seq);
+        }
+        currentSequences = newSequences;
+    }
+
+    // Add final sequences
+    for (const auto& seq : currentSequences) {
+        sequences.push_back(seq);
     }
 
     cout << "Generated " << sequences.size() << " valid course sequences" << endl;
@@ -111,13 +121,18 @@ vector<vector<string>> CourseScheduler::generateValidSequences(int maxCourses) {
 void CourseScheduler::displayAllSequences() {
     vector<vector<string>> sequences = generateValidSequences(4);
 
-    cout << "\nVALID COURSE SEQUENCES:" << endl;
-    for (int i = 0; i < sequences.size(); i++) {
+    cout << "\nVALID COURSE SEQUENCES (unique courses only):" << endl;
+    int displayCount = min(20, (int)sequences.size());
+    for (int i = 0; i < displayCount; i++) {
         cout << "Sequence " << (i + 1) << ": ";
-        for (const string& course : sequences[i]) {
-            cout << course << " ? ";
+        for (int j = 0; j < sequences[i].size(); j++) {
+            cout << sequences[i][j];
+            if (j < sequences[i].size() - 1) cout << " -> ";
         }
-        cout << "END" << endl;
+        cout << " [END]" << endl;
+    }
+    if (sequences.size() > 20) {
+        cout << "... and " << (sequences.size() - 20) << " more sequences" << endl;
     }
 }
 
@@ -126,27 +141,37 @@ void CourseScheduler::demonstrateScheduling() {
 
     CourseScheduler scheduler;
 
-    // Add courses with prerequisites
-    scheduler.addCourse("CS1002", {});
-    scheduler.addCourse("CS1004", { "CS1002" });
-    scheduler.addCourse("MT1003", {});
-    scheduler.addCourse("MT1008", { "MT1003" });
-    scheduler.addCourse("CS2001", { "CS1004" });
-    scheduler.addCourse("CS2005", { "CS2001" });
-    scheduler.addCourse("CS2006", { "CS2001" });
+    // Add courses with prerequisites (matching your courses.txt)
+    scheduler.addCourse("CS1002", {});                    // Programming Fundamentals
+    scheduler.addCourse("MT1003", {});                    // Calculus
+    scheduler.addCourse("CS1004", { "CS1002" });            // OOP
+    scheduler.addCourse("MT1008", { "MT1003" });            // Multivariable Calculus
+    scheduler.addCourse("EE1005", {});                    // Digital Logic
+    scheduler.addCourse("CS2001", { "CS1004" });            // Data Structures
+    scheduler.addCourse("CS1005", { "CS1002" });            // Discrete Structures
+    scheduler.addCourse("CS2005", { "CS2001" });            // Database Systems
+    scheduler.addCourse("CS2006", { "CS2001" });            // Operating Systems
+    scheduler.addCourse("AI2002", { "CS2001" });            // AI
+    scheduler.addCourse("CS2009", { "CS2001", "CS1005" });  // Algorithms
 
     // Test prerequisite checking
-    vector<string> completed = { "CS1002", "MT1003" };
-    cout << "\nPrerequisite Check Results:" << endl;
-    cout << "Can take CS1004: " << (scheduler.canTakeCourse("CS1004", completed) ? "YES" : "NO") << endl;
-    cout << "Can take CS2001: " << (scheduler.canTakeCourse("CS2001", completed) ? "YES" : "NO") << endl;
-    cout << "Can take CS2005: " << (scheduler.canTakeCourse("CS2005", completed) ? "YES" : "NO") << endl;
+    cout << "\nPrerequisite Check Examples:" << endl;
+    vector<string> student1 = { "CS1002", "MT1003" };
+    cout << "Student completed: CS1002, MT1003" << endl;
+    cout << "  Can take CS1004 (needs CS1002)? " << (scheduler.canTakeCourse("CS1004", student1) ? "YES" : "NO") << endl;
+    cout << "  Can take CS2001 (needs CS1004)? " << (scheduler.canTakeCourse("CS2001", student1) ? "YES" : "NO") << endl;
 
-    // Generate sequences
+    vector<string> student2 = { "CS1002", "CS1004", "MT1003" };
+    cout << "\nStudent completed: CS1002, CS1004, MT1003" << endl;
+    cout << "  Can take CS2001? " << (scheduler.canTakeCourse("CS2001", student2) ? "YES" : "NO") << endl;
+    cout << "  Can take CS2005 (needs CS2001)? " << (scheduler.canTakeCourse("CS2005", student2) ? "YES" : "NO") << endl;
+
+    // Generate valid sequences
     scheduler.displayAllSequences();
 
     cout << "\nDynamic Programming Benefits:" << endl;
-    cout << "• O(n^2) time complexity instead of O(2^n)" << endl;
-    cout << "• Memoization of prerequisite checks" << endl;
-    cout << "• Efficient sequence generation" << endl;
+    cout << "* O(V*E) time complexity instead of O(2^n)" << endl;
+    cout << "* Memoization of prerequisite checks" << endl;
+    cout << "* No duplicate courses in sequences" << endl;
+    cout << "* Efficient topological ordering" << endl;
 }
