@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <iostream>
+
 using namespace std;
 
 class Course {
@@ -19,7 +19,7 @@ public:
 
     void addPrerequisite(string prereqCode);
     bool hasPrerequisite(string prereqCode) const;
-    int getPrereqCount() const { return prerequisites.size(); }
+    size_t getPrereqCount() const;
     string getPrerequisite(int index) const;
 
     string getCode() const { return code; }

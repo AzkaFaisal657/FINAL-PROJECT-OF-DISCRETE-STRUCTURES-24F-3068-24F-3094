@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <iostream>
+
 using namespace std;
 
 class Student {
@@ -24,8 +24,8 @@ public:
     string getId() const { return id; }
     string getName() const { return name; }
     int getCurrentSemester() const { return currentSemester; }
-    int getCompletedCount() const { return completedCourses.size(); }
-    int getEnrolledCount() const { return enrolledCourses.size(); }
+    size_t getCompletedCount() const { return completedCourses.size(); }
+    size_t getEnrolledCount() const { return enrolledCourses.size(); }
     string getCompletedCourse(int index) const;
     string getEnrolledCourse(int index) const;
 
