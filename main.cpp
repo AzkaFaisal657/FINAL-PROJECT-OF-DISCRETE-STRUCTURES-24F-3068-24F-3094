@@ -13,6 +13,7 @@
 #include "ConflictDetector.h"
 #include "EfficiencyModule.h"
 #include "TestModule.h"
+#include "GUI.h"
 
 using namespace std;
 
@@ -45,6 +46,7 @@ void displayMainMenu() {
     cout << "13. Exit System\n";
     cout << "\n>> Enter choice: ";
 }
+
 void runCourseSchedulingModule(UniversitySystem& system) {
     cout << "\n-------------------------------------------------------------\n";
     cout << "               COURSE SCHEDULING MODULE\n";
@@ -73,7 +75,7 @@ void runCourseSchedulingModule(UniversitySystem& system) {
         string rollNumber;
         int targetSemester;
 
-        cout << "Enter Student Roll Number: _ ";
+        cout << "Enter Student Roll Number: ";
         cin >> rollNumber;
         cout << "Enter Target Semester: ";
         cin >> targetSemester;
@@ -114,7 +116,7 @@ void runInductionModule(UniversitySystem& system) {
     cout << "-------------------------------------------------------------\n";
 
     string courseCode;
-    cout << "Enter Course Code to Verify Prerequisites: _ ";
+    cout << "Enter Course Code to Verify Prerequisites: ";
     cin >> courseCode;
 
     InductionModule induction(system.getStudents(), system.getCourses());
@@ -131,7 +133,7 @@ void runGroupCombinationModule(UniversitySystem& system) {
     int groupSize;
     char generateSample;
 
-    cout << "Enter Course Code to Generate Groups: _ ";
+    cout << "Enter Course Code to Generate Groups: ";
     cin >> courseCode;
 
     CombinationsModule combModule(system.getStudents(), system.getCourses());
@@ -166,7 +168,7 @@ void runLogicEngine(UniversitySystem& system) {
     LogicEngine logic(system.getCourses(), system.getStudents(), system.getFaculty());
 
     string rule;
-    cout << "Enter Rule to Verify: _ ";
+    cout << "Enter Rule to Verify: ";
     cin.ignore();
     getline(cin, rule);
 
@@ -201,9 +203,9 @@ void runSetOperations(UniversitySystem& system) {
 
     if (choice == 1) {
         string courseA, courseB;
-        cout << "Enter First Course Code: _ ";
+        cout << "Enter First Course Code: ";
         cin >> courseA;
-        cout << "Enter Second Course Code: _ ";
+        cout << "Enter Second Course Code: ";
         cin >> courseB;
 
         auto intersection = setOps.getStudentsInBothCourses(courseA, courseB);
@@ -283,7 +285,7 @@ void runAutomatedProof(UniversitySystem& system) {
     AutomatedProof proof(system.getStudents(), system.getCourses(), system.getFaculty());
 
     string statement;
-    cout << "Enter Statement to Prove: _ ";
+    cout << "Enter Statement to Prove: ";
     cin.ignore();
     getline(cin, statement);
 
@@ -350,6 +352,28 @@ int main() {
     cout << " -> Consistency Checker: ACTIVE\n";
     cout << " -> Student-Course Relations Verified\n";
 
+    cout << "\n=============================================================\n";
+    cout << "                    SELECT INTERFACE MODE\n";
+    cout << "=============================================================\n";
+    cout << "1. Console Interface (Text-based)\n";
+    cout << "2. Graphical User Interface (GUI with SFML)\n";
+    cout << "\n>> Enter choice (1 or 2): ";
+
+    int interfaceChoice;
+    cin >> interfaceChoice;
+
+    if (interfaceChoice == 2) {
+        cout << "\nLaunching Graphical Interface...\n";
+        cout << "Please wait while the GUI window loads...\n";
+
+        GUI gui(&system);
+        gui.run();
+
+        cout << "\nGUI closed. Saving data...\n";
+        return 0;
+    }
+
+    // Console Interface
     while (true) {
         displayMainMenu();
 
