@@ -17,7 +17,7 @@ public:
     static void loadRooms(Room rooms[], int& count);
     static void loadStudents(Student students[], int& count);
     static void saveCourses(Course courses[], int count);
-    static void saveStudentProgress(Student students[], int count);
+    static void saveStudentProgress(Student students[], int count);//student ka progress save krega
 
 private:
     static void splitString(string str, string arr[], int& arrSize, char delimiter);
