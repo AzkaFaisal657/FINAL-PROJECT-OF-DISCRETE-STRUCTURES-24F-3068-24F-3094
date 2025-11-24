@@ -1,15 +1,29 @@
 #pragma once
-#include <string>
 #include <vector>
-#include <iostream>
-using namespace std;
+#include <string>
+#include <map>
+#include "Student.h"
+#include "Course.h"
 
 class InductionModule {
+private:
+    std::vector<Student> allStudents;
+    std::vector<Course> allCourses;
+
 public:
-    static void verifyPrerequisiteChain(string targetCourse, vector<string> completedCourses,
-        vector<pair<string, vector<string>>> coursePrereqs);
-    static void demonstrateStrongInduction();
-    static void proveBaseCase(int n);
-    static void proveInductiveStep(int k);
-    static void demonstrateInduction();
+    InductionModule(const std::vector<Student>& students, const std::vector<Course>& courses);
+
+    bool verifyPrerequisiteChain(const std::string& courseCode);
+    bool verifyStudentEligibility(const Student& student, const std::string& courseCode);
+    std::vector<std::pair<std::string, bool>> verifyAllStudentsForCourse(const std::string& courseCode);
+    void displayVerificationResults(const std::vector<std::pair<std::string, bool>>& results, const std::string& courseCode);
+    bool strongInductionVerification(const Student& student, const std::string& courseCode);
+
+private:
+    std::vector<std::string> getAllPrerequisites(const std::string& courseCode);
+    bool baseCaseVerification(const Student& student, const std::vector<std::string>& prerequisites);
+    bool inductiveStepVerification(const Student& student, const std::vector<std::string>& prerequisites, int k);
+    Course* findCourseByCode(const std::string& courseCode);
+    std::vector<Student> getStudentsEnrolledInCourse(const std::string& courseCode);
+    bool hasCycle(const std::string& courseCode, std::map<std::string, bool>& visited, std::map<std::string, bool>& recursionStack);
 };

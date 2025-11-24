@@ -1,33 +1,41 @@
 #pragma once
 #include <string>
+#include "Course.h"
 #include <vector>
-#include <iostream>
-using namespace std;
 
 class Student {
 private:
-    string id;
-    string name;
+    std::string rollNumber;
+    std::string name;
     int currentSemester;
-    vector<string> completedCourses;
-    vector<string> enrolledCourses;
+    std::vector<std::string> enrolledCourses;
+    std::vector<std::string> completedCourses;
 
 public:
-    Student();
-    Student(string id, string name, int semester);
+    Student(const std::string& rollNumber, const std::string& name, int currentSemester,
+        const std::vector<std::string>& enrolledCourses);
 
-    void completeCourse(string courseCode);
-    void enrollInCourse(string courseCode);
-    bool hasCompleted(string courseCode) const;
-    bool isEnrolled(string courseCode) const;
+    // Getters
+    std::string getRollNumber() const;
+    std::string getName() const;
+    int getCurrentSemester() const;
+    std::vector<std::string> getEnrolledCourses() const;
+    std::vector<std::string> getCompletedCourses() const;
 
-    string getId() const { return id; }
-    string getName() const { return name; }
-    int getCurrentSemester() const { return currentSemester; }
-    int getCompletedCount() const { return completedCourses.size(); }
-    int getEnrolledCount() const { return enrolledCourses.size(); }
-    string getCompletedCourse(int index) const;
-    string getEnrolledCourse(int index) const;
+    // Setters
+    void setRollNumber(const std::string& rollNumber);
+    void setName(const std::string& name);
+    void setCurrentSemester(int semester);
+    void setEnrolledCourses(const std::vector<std::string>& courses);
+    void setCompletedCourses(const std::vector<std::string>& courses);
 
-    void display() const;
+    // Course management
+    void enrollInCourse(const std::string& courseCode);
+    void completeCourse(const std::string& courseCode);
+    bool hasCompleted(const std::string& courseCode) const;
+    bool isEnrolledIn(const std::string& courseCode) const;
+
+    int getCurrentCreditHours(const std::vector<Course>& allCourses) const;
+
+    std::string toString() const;
 };

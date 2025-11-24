@@ -1,37 +1,29 @@
 #include "Course.h"
+#include <sstream>
 
-Course::Course() : code(""), name(""), creditHours(0), type(""), semester(0) {}
+Course::Course(const std::string& code, const std::string& name, int creditHours,
+    const std::string& type, int semester, const std::string& prerequisite)
+    : code(code), name(name), creditHours(creditHours), type(type), semester(semester), prerequisite(prerequisite) {}
 
-Course::Course(string code, string name, int credits, string type, int sem)
-    : code(code), name(name), creditHours(credits), type(type), semester(sem) {
-}
+std::string Course::getCode() const { return code; }
+std::string Course::getName() const { return name; }
+int Course::getCreditHours() const { return creditHours; }
+std::string Course::getType() const { return type; }
+int Course::getSemester() const { return semester; }
+std::string Course::getPrerequisite() const { return prerequisite; }
 
-void Course::addPrerequisite(string prereqCode) {
-    prerequisites.push_back(prereqCode);
-}
+void Course::setCode(const std::string& code) { this->code = code; }
+void Course::setName(const std::string& name) { this->name = name; }
+void Course::setCreditHours(int creditHours) { this->creditHours = creditHours; }
+void Course::setType(const std::string& type) { this->type = type; }
+void Course::setSemester(int semester) { this->semester = semester; }
+void Course::setPrerequisite(const std::string& prerequisite) { this->prerequisite = prerequisite; }
 
-bool Course::hasPrerequisite(string prereqCode) const {
-    for (const string& prereq : prerequisites) {
-        if (prereq == prereqCode) return true;
+std::string Course::toString() const {
+    std::ostringstream oss;
+    oss << code << " - " << name << " (" << creditHours << " credits, Semester " << semester << ")";
+    if (!prerequisite.empty()) {
+        oss << " [Prereq: " << prerequisite << "]";
     }
-    return false;
-}
-
-string Course::getPrerequisite(int index) const {
-    if (index >= 0 && index < prerequisites.size()) {
-        return prerequisites[index];
-    }
-    return "";
-}
-
-void Course::display() const {
-    cout << code << " - " << name << " (" << creditHours << " credits)" << endl;
-    if (!prerequisites.empty()) {
-        cout << "  Prerequisites: ";
-        for (int i = 0; i < prerequisites.size(); i++) {
-            cout << prerequisites[i];
-            if (i < prerequisites.size() - 1) cout << ", ";
-        }
-        cout << endl;
-    }
+    return oss.str();
 }

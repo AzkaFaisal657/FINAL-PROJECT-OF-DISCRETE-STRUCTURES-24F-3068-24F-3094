@@ -1,240 +1,139 @@
 #include "FileHandler.h"
+#include <fstream>
 #include <sstream>
-#include <iostream>
-using namespace std;
+#include <algorithm>
 
-// Define the file paths
-const string FileHandler::COURSES_FILE = "data/courses.txt";
-const string FileHandler::FACULTY_FILE = "data/teachers.txt";
-const string FileHandler::ROOMS_FILE = "data/rooms.txt";
-const string FileHandler::STUDENTS_FILE = "data/students.txt";
+std::vector<Course> FileHandler::loadCourses(const std::string& filename) {
+    std::vector<Course> courses;
+    std::ifstream file(filename);
+    std::string line;
 
-void FileHandler::splitString(string str, string arr[], int& arrSize, char delimiter) {
-    arrSize = 0;
-    string token = "";
-
-    for (int i = 0; i < (int)str.length() && arrSize < 50; i++) {
-        if (str[i] == delimiter) {
-            if (!token.empty()) {
-                arr[arrSize++] = token;
-                token = "";
-            }
-        }
-        else {
-            token += str[i];
+    while (std::getline(file, line)) {
+        auto tokens = split(line, ',');
+        if (tokens.size() >= 5) {
+            std::string prerequisite = tokens.size() > 5 ? tokens[5] : "";
+            Course course(tokens[0], tokens[1], std::stoi(tokens[2]), tokens[3], std::stoi(tokens[4]), prerequisite);
+            courses.push_back(course);
         }
     }
 
-    if (!token.empty() && arrSize < 50) {
-        arr[arrSize++] = token;
-    }
+    return courses;
 }
 
-void FileHandler::loadCourses(Course courses[], int& count) {
-    ifstream file(COURSES_FILE);
-    count = 0;
+std::vector<Student> FileHandler::loadStudents(const std::string& filename, const std::vector<Course>& allCourses) {
+    std::vector<Student> students;
+    std::ifstream file(filename);
+    std::string line;
 
-    if (!file.is_open()) {
-        cout << "Warning: Could not open " << COURSES_FILE << endl;
-        return;
-    }
+    while (std::getline(file, line)) {
+        auto tokens = split(line, ',');
+        if (tokens.size() >= 4) {
+            auto courseTokens = split(tokens[3], ';');
+            std::vector<std::string> enrolledCourses(courseTokens.begin(), courseTokens.end());
 
-    string line;
-    while (getline(file, line) && count < 100) {
-        if (line.empty()) continue;
+            Student student(tokens[0], tokens[1], std::stoi(tokens[2]), enrolledCourses);
 
-        string tokens[10];
-        int tokenCount;
-        splitString(line, tokens, tokenCount, ',');
-
-        if (tokenCount >= 5) {
-            string code = tokens[0];
-            string name = tokens[1];
-            int credits = atoi(tokens[2].c_str());
-            string type = tokens[3];
-            int semester = atoi(tokens[4].c_str());
-
-            courses[count] = Course(code, name, credits, type, semester);
-
-            if (tokenCount > 5 && !tokens[5].empty()) {
-                string prereqs[10];
-                int prereqCount;
-                splitString(tokens[5], prereqs, prereqCount, ';');
-
-                for (int i = 0; i < prereqCount; i++) {
-                    courses[count].addPrerequisite(prereqs[i]);
+            // Mark all enrolled courses as completed for previous semesters
+            int currentSem = std::stoi(tokens[2]);
+            for (const auto& courseCode : enrolledCourses) {
+                for (const auto& course : allCourses) {
+                    if (course.getCode() == courseCode && course.getSemester() < currentSem) {
+                        student.completeCourse(courseCode);
+                    }
                 }
             }
 
-            count++;
+            students.push_back(student);
         }
     }
 
-    file.close();
-    cout << "Loaded " << count << " courses from file." << endl;
+    return students;
 }
 
-void FileHandler::loadFaculty(Faculty faculty[], int& count) {
-    ifstream file(FACULTY_FILE);
-    count = 0;
+std::vector<Faculty> FileHandler::loadFaculty(const std::string& filename) {
+    std::vector<Faculty> faculty;
+    std::ifstream file(filename);
+    std::string line;
 
-    if (!file.is_open()) {
-        cout << "Warning: Could not open " << FACULTY_FILE << endl;
-        return;
-    }
+    while (std::getline(file, line)) {
+        auto tokens = split(line, ',');
+        if (tokens.size() >= 4) {
+            auto courseTokens = split(tokens[3], ';');
+            std::vector<std::string> assignedCourses(courseTokens.begin(), courseTokens.end());
 
-    string line;
-    while (getline(file, line) && count < 50) {
-        if (line.empty()) continue;
-
-        string tokens[10];
-        int tokenCount;
-        splitString(line, tokens, tokenCount, ',');
-
-        if (tokenCount >= 3) {
-            faculty[count] = Faculty(tokens[0], tokens[1], tokens[2]);
-            count++;
+            Faculty fac(tokens[0], tokens[1], tokens[2], assignedCourses);
+            faculty.push_back(fac);
         }
     }
 
-    file.close();
-    cout << "Loaded " << count << " faculty members from file." << endl;
+    return faculty;
 }
 
-void FileHandler::loadRooms(Room rooms[], int& count) {
-    ifstream file(ROOMS_FILE);
-    count = 0;
+std::vector<Room> FileHandler::loadRooms(const std::string& filename) {
+    std::vector<Room> rooms;
+    std::ifstream file(filename);
+    std::string line;
 
-    if (!file.is_open()) {
-        cout << "Warning: Could not open " << ROOMS_FILE << endl;
-        return;
-    }
-
-    string line;
-    while (getline(file, line) && count < 50) {
-        if (line.empty()) continue;
-
-        string tokens[10];
-        int tokenCount;
-        splitString(line, tokens, tokenCount, ',');
-
-        if (tokenCount >= 4) {
-            string id = tokens[0];
-            string type = tokens[1];
-            int capacity = atoi(tokens[2].c_str());
-            string status = tokens[3];
-
-            rooms[count] = Room(id, type, capacity, status);
-            count++;
+    while (std::getline(file, line)) {
+        auto tokens = split(line, ',');
+        if (tokens.size() >= 4) {
+            Room room(tokens[0], tokens[1], std::stoi(tokens[2]), tokens[3]);
+            rooms.push_back(room);
         }
     }
 
-    file.close();
-    cout << "Loaded " << count << " rooms from file." << endl;
+    return rooms;
 }
 
-void FileHandler::loadStudents(Student students[], int& count) {
-    ifstream file(STUDENTS_FILE);
-    count = 0;
-
-    if (!file.is_open()) {
-        cout << "Warning: Could not open " << STUDENTS_FILE << endl;
-        return;
-    }
-
-    string line;
-    while (getline(file, line) && count < 200) {
-        if (line.empty()) continue;
-
-        string tokens[100];
-        int tokenCount;
-        splitString(line, tokens, tokenCount, ',');
-
-        if (tokenCount >= 3) {
-            string id = tokens[0];
-            string name = tokens[1];
-            int semester = atoi(tokens[2].c_str());
-
-            students[count] = Student(id, name, semester);
-
-            if (tokenCount > 3 && !tokens[3].empty()) {
-                string completed[50];
-                int completedCount;
-                splitString(tokens[3], completed, completedCount, ';');
-
-                for (int i = 0; i < completedCount; i++) {
-                    students[count].completeCourse(completed[i]);
-                }
-            }
-
-            count++;
-        }
-    }
-
-    file.close();
-    if (count > 0) {
-        cout << "Loaded " << count << " students from file." << endl;
+void FileHandler::saveCourses(const std::string& filename, const std::vector<Course>& courses) {
+    std::ofstream file(filename);
+    for (const auto& course : courses) {
+        file << course.getCode() << "," << course.getName() << "," << course.getCreditHours() << ","
+            << course.getType() << "," << course.getSemester() << "," << course.getPrerequisite() << "\n";
     }
 }
 
-void FileHandler::saveCourses(Course courses[], int count) {
-    ofstream file(COURSES_FILE);
-
-    if (!file.is_open()) {
-        cout << "Error: Could not save courses to file." << endl;
-        return;
-    }
-
-    for (int i = 0; i < count; i++) {
-        file << courses[i].getCode() << ","
-            << courses[i].getName() << ","
-            << courses[i].getCreditHours() << ","
-            << courses[i].getType() << ","
-            << courses[i].getSemester();
-
-        if (courses[i].getPrereqCount() > 0) {
-            file << ",";
-            for (int j = 0; j < courses[i].getPrereqCount(); j++) {
-                file << courses[i].getPrerequisite(j);
-                if (j < courses[i].getPrereqCount() - 1) {
-                    file << ";";
-                }
-            }
+void FileHandler::saveStudents(const std::string& filename, const std::vector<Student>& students) {
+    std::ofstream file(filename);
+    for (const auto& student : students) {
+        file << student.getRollNumber() << "," << student.getName() << "," << student.getCurrentSemester() << ",";
+        auto courses = student.getEnrolledCourses();
+        for (size_t i = 0; i < courses.size(); ++i) {
+            file << courses[i];
+            if (i < courses.size() - 1) file << ";";
         }
-
-        file << endl;
+        file << "\n";
     }
-
-    file.close();
-    cout << "Saved " << count << " courses to file." << endl;
 }
 
-void FileHandler::saveStudentProgress(Student students[], int count) {
-    ofstream file(STUDENTS_FILE);
-
-    if (!file.is_open()) {
-        cout << "Error: Could not save student progress." << endl;
-        return;
-    }
-
-    for (int i = 0; i < count; i++) {
-        file << students[i].getId() << ","
-            << students[i].getName() << ","
-            << students[i].getCurrentSemester();
-
-        if (students[i].getCompletedCount() > 0) {
-            file << ",";
-            for (int j = 0; j < students[i].getCompletedCount(); j++) {
-                file << students[i].getCompletedCourse(j);
-                if (j < students[i].getCompletedCount() - 1) {
-                    file << ";";
-                }
-            }
+void FileHandler::saveFaculty(const std::string& filename, const std::vector<Faculty>& faculty) {
+    std::ofstream file(filename);
+    for (const auto& fac : faculty) {
+        file << fac.getFacultyId() << "," << fac.getName() << "," << fac.getDesignation() << ",";
+        auto courses = fac.getAssignedCourses();
+        for (size_t i = 0; i < courses.size(); ++i) {
+            file << courses[i];
+            if (i < courses.size() - 1) file << ";";
         }
+        file << "\n";
+    }
+}
 
-        file << endl;
+void FileHandler::saveRooms(const std::string& filename, const std::vector<Room>& rooms) {
+    std::ofstream file(filename);
+    for (const auto& room : rooms) {
+        file << room.getRoomId() << "," << room.getType() << "," << room.getCapacity() << "," << room.getStatus() << "\n";
+    }
+}
+
+std::vector<std::string> FileHandler::split(const std::string& str, char delimiter) {
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(str);
+
+    while (std::getline(tokenStream, token, delimiter)) {
+        tokens.push_back(token);
     }
 
-    file.close();
-    cout << "Saved " << count << " students to file." << endl;
+    return tokens;
 }

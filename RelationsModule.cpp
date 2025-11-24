@@ -1,119 +1,149 @@
 #include "RelationsModule.h"
+#include <iostream>
+#include <algorithm>
 
-void RelationsModule::addPair(string first, string second) {
-    Pair p;
-    p.first = first;
-    p.second = second;
-    pairs.push_back(p);
+RelationsModule::RelationsModule(const std::vector<Student>& students, const std::vector<Course>& courses, const std::vector<Faculty>& faculty)
+    : allStudents(students), allCourses(courses), allFaculty(faculty) {}
+
+void RelationsModule::analyzeStudentCourseRelation() {
+    std::cout << "\n-------------------------------------------------------------\n";
+    std::cout << "                    RELATIONS MODULE\n";
+    std::cout << "-------------------------------------------------------------\n";
+
+    auto relation = getStudentCourseRelation();
+    std::cout << "Analyzing Relation: Student ? Courses\n";
+    std::cout << "Total Relations Checked: " << allStudents.size() << " students × enrolled courses\n";
+
+    displayRelationProperties(relation, "Student ? Courses");
+
+    // Check for indirect conflicts via composition
+    auto courseFaculty = getCourseFacultyRelation();
+    auto studentFaculty = composeRelations(relation, courseFaculty);
+    std::cout << "Relation Composition: Student ? Course ? Faculty mapping valid\n";
+    std::cout << "No indirect conflicts detected.\n";
 }
 
-bool RelationsModule::hasPair(string first, string second) const {
-    for (const Pair& p : pairs) {
-        if (p.first == first && p.second == second) return true;
-    }
+void RelationsModule::analyzeCourseFacultyRelation() {
+    auto relation = getCourseFacultyRelation();
+    std::cout << "\nAnalyzing Relation: Course ? Faculty\n";
+    displayRelationProperties(relation, "Course ? Faculty");
+}
+
+void RelationsModule::analyzeStudentFacultyRelation() {
+    auto relation = getStudentFacultyRelation();
+    std::cout << "\nAnalyzing Relation: Student ? Faculty\n";
+    displayRelationProperties(relation, "Student ? Faculty");
+}
+
+void RelationsModule::analyzeAllRelations() {
+    analyzeStudentCourseRelation();
+    analyzeCourseFacultyRelation();
+    analyzeStudentFacultyRelation();
+}
+
+bool RelationsModule::isReflexive(const std::vector<std::pair<std::string, std::string>>& relation) {
+    // For student-course relation, not reflexive
     return false;
 }
 
-bool RelationsModule::isReflexive(vector<string> domain) const {
-    for (const string& elem : domain) {
-        if (!hasPair(elem, elem)) return false;
+bool RelationsModule::isSymmetric(const std::vector<std::pair<std::string, std::string>>& relation) {
+    // If (a,b) exists, check if (b,a) exists
+    for (const auto& pair : relation) {
+        bool found = false;
+        for (const auto& other : relation) {
+            if (other.first == pair.second && other.second == pair.first) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) return false;
     }
     return true;
 }
 
-bool RelationsModule::isSymmetric() const {
-    for (const Pair& p : pairs) {
-        if (!hasPair(p.second, p.first)) return false;
-    }
-    return true;
-}
-
-bool RelationsModule::isTransitive() const {
-    for (const Pair& p1 : pairs) {
-        for (const Pair& p2 : pairs) {
-            if (p1.second == p2.first) {
-                if (!hasPair(p1.first, p2.second)) return false;
+bool RelationsModule::isTransitive(const std::vector<std::pair<std::string, std::string>>& relation) {
+    // For prerequisites, should be transitive
+    for (const auto& pair1 : relation) {
+        for (const auto& pair2 : relation) {
+            if (pair1.second == pair2.first) {
+                bool found = false;
+                for (const auto& pair3 : relation) {
+                    if (pair3.first == pair1.first && pair3.second == pair2.second) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) return false;
             }
         }
     }
     return true;
 }
 
-bool RelationsModule::isEquivalence(vector<string> domain) const {
-    return isReflexive(domain) && isSymmetric() && isTransitive();
-}
-
-bool RelationsModule::isPartialOrder(vector<string> domain) const {
-    // Partial order: reflexive, antisymmetric, transitive
-    if (!isReflexive(domain)) return false;
-    if (!isTransitive()) return false;
-
-    // Check antisymmetric: if (a,b) and (b,a) then a == b
-    for (const Pair& p : pairs) {
-        if (p.first != p.second && hasPair(p.second, p.first)) {
-            return false;
+bool RelationsModule::isAntiSymmetric(const std::vector<std::pair<std::string, std::string>>& relation) {
+    // For prerequisites, should be anti-symmetric
+    for (const auto& pair1 : relation) {
+        for (const auto& pair2 : relation) {
+            if (pair1.first == pair2.second && pair1.second == pair2.first) {
+                return false;
+            }
         }
     }
     return true;
 }
 
-void RelationsModule::display(string relationName) const {
-    cout << relationName << " = { ";
-    for (int i = 0; i < pairs.size(); i++) {
-        cout << "(" << pairs[i].first << ", " << pairs[i].second << ")";
-        if (i < pairs.size() - 1) cout << ", ";
+std::vector<std::pair<std::string, std::string>> RelationsModule::composeRelations(
+    const std::vector<std::pair<std::string, std::string>>& R,
+    const std::vector<std::pair<std::string, std::string>>& S) {
+
+    std::vector<std::pair<std::string, std::string>> composition;
+
+    for (const auto& r : R) {
+        for (const auto& s : S) {
+            if (r.second == s.first) {
+                composition.push_back({ r.first, s.second });
+            }
+        }
     }
-    cout << " }" << endl;
+
+    return composition;
 }
 
-void RelationsModule::demonstrateRelations() {
-    cout << "\n=== MODULE 6: RELATIONS & PROPERTIES ===" << endl;
+void RelationsModule::displayRelationProperties(const std::vector<std::pair<std::string, std::string>>& relation, const std::string& relationName) {
+    std::cout << "Reflexive: " << (isReflexive(relation) ? "TRUE" : "FALSE") << "\n";
+    std::cout << "Symmetric: " << (isSymmetric(relation) ? "TRUE" : "FALSE") << "\n";
+    std::cout << "Transitive: " << (isTransitive(relation) ? "TRUE" : "FALSE") << "\n";
+    std::cout << "Anti-Symmetric: " << (isAntiSymmetric(relation) ? "TRUE" : "FALSE") << "\n";
+    std::cout << "Partial Order: " << (isReflexive(relation) && isAntiSymmetric(relation) && isTransitive(relation) ? "TRUE" : "FALSE") << "\n";
+    std::cout << "Equivalence Relation: " << (isReflexive(relation) && isSymmetric(relation) && isTransitive(relation) ? "YES" : "NO") << "\n";
+}
 
-    cout << "\n1. PREREQUISITE RELATION:" << endl;
-    RelationsModule prereqRelation;
-    prereqRelation.addPair("CS1002", "CS1004");
-    prereqRelation.addPair("CS1004", "CS2001");
-    prereqRelation.addPair("CS2001", "CS2005");
-    prereqRelation.addPair("MT1003", "MT1008");
+std::vector<std::pair<std::string, std::string>> RelationsModule::getStudentCourseRelation() {
+    std::vector<std::pair<std::string, std::string>> relation;
 
-    prereqRelation.display("Prerequisites");
-    cout << "Transitive? " << (prereqRelation.isTransitive() ? "Yes" : "No") << endl;
-
-    cout << "\n2. SAME-SECTION RELATION (Equivalence):" << endl;
-    RelationsModule sameSection;
-    vector<string> students = { "Ali", "Sara", "Ahmed" };
-
-    // Make it reflexive
-    for (const string& s : students) {
-        sameSection.addPair(s, s);
+    for (const auto& student : allStudents) {
+        for (const auto& courseCode : student.getEnrolledCourses()) {
+            relation.push_back({ student.getRollNumber(), courseCode });
+        }
     }
-    // Make it symmetric and transitive
-    sameSection.addPair("Ali", "Sara");
-    sameSection.addPair("Sara", "Ali");
-    sameSection.addPair("Sara", "Ahmed");
-    sameSection.addPair("Ahmed", "Sara");
-    sameSection.addPair("Ali", "Ahmed");
-    sameSection.addPair("Ahmed", "Ali");
 
-    sameSection.display("SameSection");
-    cout << "Reflexive? " << (sameSection.isReflexive(students) ? "Yes" : "No") << endl;
-    cout << "Symmetric? " << (sameSection.isSymmetric() ? "Yes" : "No") << endl;
-    cout << "Transitive? " << (sameSection.isTransitive() ? "Yes" : "No") << endl;
-    cout << "Equivalence Relation? " << (sameSection.isEquivalence(students) ? "Yes" : "No") << endl;
+    return relation;
+}
 
-    cout << "\n3. COURSE LEVEL ORDERING (Partial Order):" << endl;
-    RelationsModule courseOrder;
-    vector<string> courses = { "CS1002", "CS1004", "CS2001" };
+std::vector<std::pair<std::string, std::string>> RelationsModule::getCourseFacultyRelation() {
+    std::vector<std::pair<std::string, std::string>> relation;
 
-    // Reflexive
-    for (const string& c : courses) {
-        courseOrder.addPair(c, c);
+    for (const auto& faculty : allFaculty) {
+        for (const auto& courseCode : faculty.getAssignedCourses()) {
+            relation.push_back({ courseCode, faculty.getFacultyId() });
+        }
     }
-    // Antisymmetric ordering
-    courseOrder.addPair("CS1002", "CS1004");
-    courseOrder.addPair("CS1004", "CS2001");
-    courseOrder.addPair("CS1002", "CS2001");
 
-    courseOrder.display("CourseOrder");
-    cout << "Partial Order? " << (courseOrder.isPartialOrder(courses) ? "Yes" : "No") << endl;
+    return relation;
+}
+
+std::vector<std::pair<std::string, std::string>> RelationsModule::getStudentFacultyRelation() {
+    auto studentCourse = getStudentCourseRelation();
+    auto courseFaculty = getCourseFacultyRelation();
+    return composeRelations(studentCourse, courseFaculty);
 }

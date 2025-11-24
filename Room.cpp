@@ -1,41 +1,21 @@
 #include "Room.h"
+#include <sstream>
 
-Room::Room() : roomId(""), roomType(""), capacity(0), status("Available"), assignedCourse("") {}
+Room::Room(const std::string& roomId, const std::string& type, int capacity, const std::string& status)
+    : roomId(roomId), type(type), capacity(capacity), status(status) {}
 
-Room::Room(string id, string type, int cap, string stat)
-    : roomId(id), roomType(type), capacity(cap), status(stat), assignedCourse("") {
-}
-
-void Room::assignToCourse(string courseCode) {
-    assignedCourse = courseCode;
-    status = "Occupied";
-}
-
-void Room::releaseRoom() {
-    assignedCourse = "";
-    status = "Available";
-}
-
-void Room::setStatus(string stat) {
-    status = stat;
-}
-
-string Room::getRoomId() const { return roomId; }
-string Room::getRoomType() const { return roomType; }
+std::string Room::getRoomId() const { return roomId; }
+std::string Room::getType() const { return type; }
 int Room::getCapacity() const { return capacity; }
-string Room::getStatus() const { return status; }
-string Room::getAssignedCourse() const { return assignedCourse; }
+std::string Room::getStatus() const { return status; }
 
-bool Room::isAvailable() const {
-    return status == "Available";
-}
+void Room::setRoomId(const std::string& roomId) { this->roomId = roomId; }
+void Room::setType(const std::string& type) { this->type = type; }
+void Room::setCapacity(int capacity) { this->capacity = capacity; }
+void Room::setStatus(const std::string& status) { this->status = status; }
 
-void Room::display() const {
-    cout << "Room ID: " << roomId << endl;
-    cout << "Type: " << roomType << endl;
-    cout << "Capacity: " << capacity << " students" << endl;
-    cout << "Status: " << status << endl;
-    if (!assignedCourse.empty()) {
-        cout << "Assigned to: " << assignedCourse << endl;
-    }
+std::string Room::toString() const {
+    std::ostringstream oss;
+    oss << roomId << " - " << type << " (Capacity: " << capacity << ", Status: " << status << ")";
+    return oss.str();
 }

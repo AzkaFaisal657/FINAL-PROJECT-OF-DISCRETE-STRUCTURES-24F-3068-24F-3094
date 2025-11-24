@@ -1,59 +1,158 @@
 ﻿#include "InductionModule.h"
+#include <iostream>
+#include <algorithm>
 
-void InductionModule::verifyPrerequisiteChain(string targetCourse, vector<string> completedCourses,
-    vector<pair<string, vector<string>>> coursePrereqs) {
-    cout << "\n=== PREREQUISITE CHAIN VERIFICATION (STRONG INDUCTION) ===" << endl;
-    cout << "Target Course: " << targetCourse << endl;
-    cout << "Completed Courses: ";
-    for (const string& course : completedCourses) cout << course << " ";
-    cout << endl;
+InductionModule::InductionModule(const std::vector<Student>& students, const std::vector<Course>& courses)
+    : allStudents(students), allCourses(courses) {}
 
-    cout << "\nBASE CASE (n=1): Checking direct prerequisites..." << endl;
-    for (const auto& course : coursePrereqs) {
-        if (course.first == targetCourse) {
-            for (const string& prereq : course.second) {
-                bool found = false;
-                for (const string& completed : completedCourses) {
-                    if (completed == prereq) found = true;
-                }
-                cout << "Prerequisite " << prereq << ": " << (found ? "SATISFIED" : "MISSING") << endl;
-            }
+bool InductionModule::verifyPrerequisiteChain(const std::string& courseCode) {
+    auto prerequisites = getAllPrerequisites(courseCode);
+    std::cout << "Prerequisite chain for " << courseCode << ": ";
+    for (const auto& prereq : prerequisites) {
+        std::cout << prereq << " -> ";
+    }
+    std::cout << courseCode << "\n";
+
+    // Check for cycles (should be a DAG)
+    std::map<std::string, bool> visited;
+    std::map<std::string, bool> recursionStack;
+
+    for (const auto& course : allCourses) {
+        if (hasCycle(course.getCode(), visited, recursionStack)) {
+            std::cout << "CYCLE DETECTED in prerequisite chain!\n";
+            return false;
         }
     }
 
-    cout << "\nINDUCTIVE STEP: Verifying prerequisite chains recursively..." << endl;
-    cout << "Assuming all prerequisite chains up to length k are verified" << endl;
-    cout << "Proving chain of length k+1 is also verified" << endl;
-
-    cout << "\nSTRONG INDUCTION COMPLETE: All prerequisite chains verified!" << endl;
+    std::cout << "Prerequisite chain is valid (DAG)\n";
+    return true;
 }
 
-void InductionModule::demonstrateStrongInduction() {
-    cout << "\n=== MODULE 3: STRONG INDUCTION DEMONSTRATION ===" << endl;
-    cout << "Theorem: Student can take any course if all prerequisites are satisfied" << endl;
-
-    proveBaseCase(1);
-    proveInductiveStep(1);
-
-    cout << "\nBy strong induction, the theorem holds for all course chains!" << endl;
+bool InductionModule::verifyStudentEligibility(const Student& student, const std::string& courseCode) {
+    return strongInductionVerification(student, courseCode);
 }
 
-void InductionModule::proveBaseCase(int n) {
-    cout << "\nBASE CASE (n=" << n << "):" << endl;
-    cout << "For a course with no prerequisites (chain length 0)" << endl;
-    cout << "Student can directly enroll - theorem holds" << endl;
-    cout << " Base case proven" << endl;
+std::vector<std::pair<std::string, bool>> InductionModule::verifyAllStudentsForCourse(const std::string& courseCode) {
+    std::vector<std::pair<std::string, bool>> results;
+    auto enrolledStudents = getStudentsEnrolledInCourse(courseCode);
+
+    for (const auto& student : enrolledStudents) {
+        bool eligible = strongInductionVerification(student, courseCode);
+        results.push_back(std::make_pair(student.getRollNumber(), eligible));
+    }
+
+    return results;
 }
 
-void InductionModule::proveInductiveStep(int k) {
-    cout << "\nINDUCTIVE STEP:" << endl;
-    cout << "Assume theorem holds for all prerequisite chains up to length k" << endl;
-    cout << "Consider a course with prerequisite chain of length k+1" << endl;
-    cout << "By inductive hypothesis, student can take all prerequisites" << endl;
-    cout << "Therefore, student can take the target course" << endl;
-    cout << " Inductive step proven" << endl;
+void InductionModule::displayVerificationResults(const std::vector<std::pair<std::string, bool>>& results, const std::string& courseCode) {
+    std::cout << "\n=== INDUCTION VERIFICATION RESULTS for " << courseCode << " ===\n";
+
+    int eligibleCount = 0;
+    int totalCount = results.size();
+
+    for (const auto& result : results) {
+        std::cout << "Student " << result.first << ": ";
+        if (result.second) {
+            std::cout << "ELIGIBLE [OK]";
+            eligibleCount++;
+        }
+        else {
+            std::cout << "NOT ELIGIBLE [X]";
+        }
+        std::cout << "\n";
+    }
+
+    std::cout << "\nSUMMARY:\n";
+    std::cout << " - Total Students: " << totalCount << "\n";
+    std::cout << " - Eligible: " << eligibleCount << "\n";
+    std::cout << " - Not Eligible: " << (totalCount - eligibleCount) << "\n";
+    std::cout << " - Success Rate: " << (totalCount > 0 ? (eligibleCount * 100 / totalCount) : 0) << "%\n";
 }
 
-void InductionModule::demonstrateInduction() {
-    demonstrateStrongInduction();
+bool InductionModule::strongInductionVerification(const Student& student, const std::string& courseCode) {
+    auto prerequisites = getAllPrerequisites(courseCode);
+
+    // Base case: Check immediate prerequisite
+    if (!prerequisites.empty()) {
+        std::string immediatePrereq = prerequisites.back();
+        if (!student.hasCompleted(immediatePrereq)) {
+            return false;
+        }
+    }
+
+    // Strong induction: Check all prerequisites in chain
+    for (const auto& prereq : prerequisites) {
+        if (!student.hasCompleted(prereq)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+std::vector<std::string> InductionModule::getAllPrerequisites(const std::string& courseCode) {
+    std::vector<std::string> prerequisites;
+    std::string currentCourse = courseCode;
+
+    while (true) {
+        Course* course = findCourseByCode(currentCourse);
+        if (!course || course->getPrerequisite().empty()) {
+            break;
+        }
+        prerequisites.push_back(course->getPrerequisite());
+        currentCourse = course->getPrerequisite();
+    }
+
+    std::reverse(prerequisites.begin(), prerequisites.end());
+    return prerequisites;
+}
+
+bool InductionModule::baseCaseVerification(const Student& student, const std::vector<std::string>& prerequisites) {
+    if (prerequisites.empty()) return true;
+    return student.hasCompleted(prerequisites[0]);
+}
+
+bool InductionModule::inductiveStepVerification(const Student& student, const std::vector<std::string>& prerequisites, int k) {
+    // Assume P(1), P(2), ..., P(k) are true, verify P(k+1)
+    if (k >= prerequisites.size()) return true;
+    return student.hasCompleted(prerequisites[k]);
+}
+
+Course* InductionModule::findCourseByCode(const std::string& courseCode) {
+    for (auto& course : allCourses) {
+        if (course.getCode() == courseCode) {
+            return &course;
+        }
+    }
+    return nullptr;
+}
+
+std::vector<Student> InductionModule::getStudentsEnrolledInCourse(const std::string& courseCode) {
+    std::vector<Student> enrolled;
+    for (const auto& student : allStudents) {
+        if (student.isEnrolledIn(courseCode)) {
+            enrolled.push_back(student);
+        }
+    }
+    return enrolled;
+}
+
+bool InductionModule::hasCycle(const std::string& courseCode, std::map<std::string, bool>& visited, std::map<std::string, bool>& recursionStack) {
+    if (!visited[courseCode]) {
+        visited[courseCode] = true;
+        recursionStack[courseCode] = true;
+
+        Course* course = findCourseByCode(courseCode);
+        if (course && !course->getPrerequisite().empty()) {
+            std::string prereq = course->getPrerequisite();
+            if (!visited[prereq] && hasCycle(prereq, visited, recursionStack)) {
+                return true;
+            }
+            else if (recursionStack[prereq]) {
+                return true;
+            }
+        }
+    }
+    recursionStack[courseCode] = false;
+    return false;
 }

@@ -1,104 +1,107 @@
 #include "CombinationsModule.h"
+#include <iostream>
+#include <cmath>
 
-int CombinationsModule::factorial(int n) {
-    if (n <= 1) return 1;
-    int result = 1;
-    for (int i = 2; i <= n; i++) {
-        result *= i;
+CombinationsModule::CombinationsModule(const std::vector<Student>& students, const std::vector<Course>& courses)
+    : allStudents(students), allCourses(courses) {}
+
+std::vector<std::vector<std::string>> CombinationsModule::generateStudentGroups(const std::string& courseCode, int groupSize) {
+    auto enrolledStudents = getStudentsEnrolledInCourse(courseCode);
+    auto rollNumbers = getStudentRollNumbers(enrolledStudents);
+
+    std::vector<std::vector<std::string>> allCombinations;
+    std::vector<std::string> current;
+
+    if (rollNumbers.size() < groupSize) {
+        std::cout << "Not enough students for group size " << groupSize << "\n";
+        return allCombinations;
+    }
+
+    generateCombinations(rollNumbers, groupSize, allCombinations, 0, current);
+    return allCombinations;
+}
+
+std::vector<std::vector<std::string>> CombinationsModule::generateLabGroups(const std::string& labCourseCode, int groupSize) {
+    return generateStudentGroups(labCourseCode, groupSize);
+}
+
+std::vector<std::vector<std::string>> CombinationsModule::generateProjectGroups(int semester, int groupSize) {
+    std::vector<Student> semesterStudents;
+    for (const auto& student : allStudents) {
+        if (student.getCurrentSemester() == semester) {
+            semesterStudents.push_back(student);
+        }
+    }
+
+    auto rollNumbers = getStudentRollNumbers(semesterStudents);
+    std::vector<std::vector<std::string>> allCombinations;
+    std::vector<std::string> current;
+
+    if (rollNumbers.size() < groupSize) {
+        std::cout << "Not enough students in semester " << semester << " for group size " << groupSize << "\n";
+        return allCombinations;
+    }
+
+    generateCombinations(rollNumbers, groupSize, allCombinations, 0, current);
+    return allCombinations;
+}
+
+long long CombinationsModule::calculateCombinations(int n, int r) {
+    if (r > n) return 0;
+    if (r * 2 > n) r = n - r;
+
+    long long result = 1;
+    for (int i = 1; i <= r; ++i) {
+        result *= n - r + i;
+        result /= i;
     }
     return result;
 }
 
-int CombinationsModule::calculateCombinations(int n, int r) {
-    if (r > n || r < 0) return 0;
-    return factorial(n) / (factorial(r) * factorial(n - r));
-}
+void CombinationsModule::displayGroups(const std::vector<std::vector<std::string>>& groups, const std::string& groupType) {
+    std::cout << "\n=== " << groupType << " GROUPS ===\n";
+    std::cout << "Total possible groups: " << groups.size() << "\n";
+    std::cout << "Sample groups (showing first 5):\n";
 
-int CombinationsModule::calculatePermutations(int n, int r) {
-    if (r > n || r < 0) return 0;
-    return factorial(n) / factorial(n - r);
-}
-
-void CombinationsModule::generateCombinationsHelper(string students[], int n, int r,
-    int index, string data[], int i, StudentGroup groups[], int& groupCount) {
-    if (index == r) {
-        if (groupCount < 100) {
-            groups[groupCount].memberCount = r;
-            for (int j = 0; j < r; j++) {
-                groups[groupCount].members[j] = data[j];
-            }
-            groupCount++;
+    for (size_t i = 0; i < std::min(groups.size(), size_t(5)); ++i) {
+        std::cout << "Group " << (i + 1) << ": {";
+        for (size_t j = 0; j < groups[i].size(); ++j) {
+            std::cout << groups[i][j];
+            if (j < groups[i].size() - 1) std::cout << ", ";
         }
+        std::cout << "}\n";
+    }
+}
+
+std::vector<Student> CombinationsModule::getStudentsEnrolledInCourse(const std::string& courseCode) {
+    std::vector<Student> enrolled;
+    for (const auto& student : allStudents) {
+        if (student.isEnrolledIn(courseCode)) {
+            enrolled.push_back(student);
+        }
+    }
+    return enrolled;
+}
+
+std::vector<std::string> CombinationsModule::getStudentRollNumbers(const std::vector<Student>& students) {
+    std::vector<std::string> rollNumbers;
+    for (const auto& student : students) {
+        rollNumbers.push_back(student.getRollNumber());
+    }
+    return rollNumbers;
+}
+
+void CombinationsModule::generateCombinations(const std::vector<std::string>& elements, int r,
+    std::vector<std::vector<std::string>>& result,
+    int index, std::vector<std::string>& current) {
+    if (current.size() == r) {
+        result.push_back(current);
         return;
     }
-    if (i >= n) return;
 
-    data[index] = students[i];
-    generateCombinationsHelper(students, n, r, index + 1, data, i + 1, groups, groupCount);
-    generateCombinationsHelper(students, n, r, index, data, i + 1, groups, groupCount);
-}
-
-void CombinationsModule::generateAllGroups(string students[], int n, int r,
-    StudentGroup groups[], int& groupCount) {
-    groupCount = 0;
-    string data[10];
-    generateCombinationsHelper(students, n, r, 0, data, 0, groups, groupCount);
-}
-
-void CombinationsModule::displayGroup(StudentGroup& group, int groupNum) {
-    cout << "Group " << groupNum << ": { ";
-    for (int i = 0; i < group.memberCount; i++) {
-        cout << group.members[i];
-        if (i < group.memberCount - 1) cout << ", ";
+    for (int i = index; i < elements.size(); ++i) {
+        current.push_back(elements[i]);
+        generateCombinations(elements, r, result, i + 1, current);
+        current.pop_back();
     }
-    cout << " }" << endl;
-}
-
-void CombinationsModule::assignProjectGroups(string students[], int studentCount, int groupSize) {
-    cout << "\n--- Project Group Assignment ---" << endl;
-    cout << "Students: " << studentCount << ", Group Size: " << groupSize << endl;
-
-    int numGroups = calculateCombinations(studentCount, groupSize);
-    cout << "Possible groups: C(" << studentCount << "," << groupSize << ") = " << numGroups << endl;
-
-    StudentGroup groups[100];
-    int groupCount;
-    generateAllGroups(students, studentCount, groupSize, groups, groupCount);
-
-    cout << "First 5 possible groups:" << endl;
-    for (int i = 0; i < min(5, groupCount); i++) {
-        displayGroup(groups[i], i + 1);
-    }
-}
-
-void CombinationsModule::assignLabSessions(string students[], int studentCount, int labCapacity) {
-    cout << "\n--- Lab Session Assignment ---" << endl;
-    cout << "Students: " << studentCount << ", Lab Capacity: " << labCapacity << endl;
-    int sessions = (studentCount + labCapacity - 1) / labCapacity;
-    cout << "Minimum sessions needed: " << sessions << endl;
-}
-
-void CombinationsModule::assignElectives(string students[], int studentCount, int electiveSlots) {
-    cout << "\n--- Elective Assignment ---" << endl;
-    cout << "Students: " << studentCount << ", Slots: " << electiveSlots << endl;
-    int ways = calculatePermutations(studentCount, electiveSlots);
-    cout << "Possible arrangements: P(" << studentCount << "," << electiveSlots << ") = " << ways << endl;
-}
-
-void CombinationsModule::demonstrateCombinations() {
-    cout << "\n=== MODULE 2: COMBINATIONS & COUNTING ===" << endl;
-
-    cout << "\n1. BASIC CALCULATIONS:" << endl;
-    cout << "C(6,2) = " << calculateCombinations(6, 2) << " (ways to choose 2 from 6)" << endl;
-    cout << "P(6,2) = " << calculatePermutations(6, 2) << " (arrangements of 2 from 6)" << endl;
-
-    cout << "\n2. PROJECT GROUP FORMATION:" << endl;
-    string students[] = { "Ali", "Sara", "Ahmed", "Fatima", "Hassan" };
-    assignProjectGroups(students, 5, 2);
-
-    cout << "\n3. LAB SESSION PLANNING:" << endl;
-    assignLabSessions(students, 5, 2);
-
-    cout << "\n4. ELECTIVE SLOT ALLOCATION:" << endl;
-    assignElectives(students, 5, 3);
 }

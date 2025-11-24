@@ -1,27 +1,30 @@
 #pragma once
+#include <vector>
 #include <string>
-#include <iostream>
-using namespace std;
-
-struct StudentGroup {
-    string members[10];
-    int memberCount;
-};
+#include <algorithm>
+#include "Student.h"
+#include "Course.h"
 
 class CombinationsModule {
 private:
-    static int factorial(int n);
-    static void generateCombinationsHelper(string students[], int n, int r,
-        int index, string data[], int i,
-        StudentGroup groups[], int& groupCount);
+    std::vector<Student> allStudents;
+    std::vector<Course> allCourses;
 
 public:
-    static int calculateCombinations(int n, int r);
-    static int calculatePermutations(int n, int r);
-    static void generateAllGroups(string students[], int n, int r, StudentGroup groups[], int& groupCount);
-    static void assignProjectGroups(string students[], int studentCount, int groupSize);
-    static void assignLabSessions(string students[], int studentCount, int labCapacity);
-    static void assignElectives(string students[], int studentCount, int electiveSlots);
-    static void demonstrateCombinations();
-    static void displayGroup(StudentGroup& group, int groupNum);
+    CombinationsModule(const std::vector<Student>& students, const std::vector<Course>& courses);
+
+    std::vector<std::vector<std::string>> generateStudentGroups(const std::string& courseCode, int groupSize);
+    std::vector<std::vector<std::string>> generateLabGroups(const std::string& labCourseCode, int groupSize);
+    std::vector<std::vector<std::string>> generateProjectGroups(int semester, int groupSize);
+    long long calculateCombinations(int n, int r);
+    void displayGroups(const std::vector<std::vector<std::string>>& groups, const std::string& groupType);
+
+    // MADE PUBLIC TO FIX ACCESS ERROR
+    std::vector<Student> getStudentsEnrolledInCourse(const std::string& courseCode);
+
+private:
+    std::vector<std::string> getStudentRollNumbers(const std::vector<Student>& students);
+    void generateCombinations(const std::vector<std::string>& elements, int r,
+        std::vector<std::vector<std::string>>& result,
+        int index, std::vector<std::string>& current);
 };

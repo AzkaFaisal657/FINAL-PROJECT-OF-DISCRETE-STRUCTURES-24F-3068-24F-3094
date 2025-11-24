@@ -1,32 +1,35 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <iostream>
-using namespace std;
 
 class Course {
 private:
-    string code;
-    string name;
+    std::string code;
+    std::string name;
     int creditHours;
-    string type;
+    std::string type;
     int semester;
-    vector<string> prerequisites;
+    std::string prerequisite;
 
 public:
-    Course();
-    Course(string code, string name, int credits, string type, int sem);
+    Course(const std::string& code, const std::string& name, int creditHours,
+        const std::string& type, int semester, const std::string& prerequisite = "");
 
-    void addPrerequisite(string prereqCode);
-    bool hasPrerequisite(string prereqCode) const;
-    int getPrereqCount() const { return prerequisites.size(); }
-    string getPrerequisite(int index) const;
+    // Getters
+    std::string getCode() const;
+    std::string getName() const;
+    int getCreditHours() const;
+    std::string getType() const;
+    int getSemester() const;
+    std::string getPrerequisite() const;
 
-    string getCode() const { return code; }
-    string getName() const { return name; }
-    int getCreditHours() const { return creditHours; }
-    string getType() const { return type; }
-    int getSemester() const { return semester; }
+    // Setters
+    void setCode(const std::string& code);
+    void setName(const std::string& name);
+    void setCreditHours(int creditHours);
+    void setType(const std::string& type);
+    void setSemester(int semester);
+    void setPrerequisite(const std::string& prerequisite);
 
-    void display() const;
+    std::string toString() const;
 };

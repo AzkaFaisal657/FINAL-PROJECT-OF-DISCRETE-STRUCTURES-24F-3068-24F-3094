@@ -1,0 +1,12 @@
+F001,Dr. Qamar uz Zaman,Professor,CS1002;CS2001;CS2005
+F002,Dr. Affan Rauf,Associate Professor,CS2006;CS3006;CS3001
+F003,Ms. Anmol Bilal,Lecturer,CS1004;CL1004;CL2001
+F004,Dr. Muhammad Moazam Fraz,Professor,SE1001;SE2001;SE3002
+F005,Dr. Naveed Ahmed,Associate Professor,AI2002;CS2009
+F006,Ms. Sarah Khan,Lecturer,CL2005;CL2006;CL3001
+F007,Dr. Ali Hassan,Professor,CS3002;CS4001
+F008,Ms. Fatima Noor,Lecturer,SS1012;SS1014;SS2012
+F009,Dr. Ahmed Raza,Associate Professor,SE2004;SE4002
+F010,Ms. Khadija Malik,Lecturer,MT1003;MT2005;CS1005
+F011,Dr. Bilal Khalid,Professor,EE1005;EE2003
+F012,Ms. Sumble Khan,Lecturer,CL1002;AL2002

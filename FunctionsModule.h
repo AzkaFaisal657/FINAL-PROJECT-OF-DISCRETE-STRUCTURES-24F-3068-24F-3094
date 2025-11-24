@@ -1,30 +1,44 @@
 #pragma once
-#include <string>
 #include <vector>
-#include <iostream>
-using namespace std;
-
-struct Mapping {
-    string domain;
-    string codomain;
-};
+#include <string>
+#include <map>
+#include "Course.h"
+#include "Student.h"
+#include "Faculty.h"
 
 class FunctionsModule {
 private:
-    vector<Mapping> mappings;
+    std::vector<Course> allCourses;
+    std::vector<Student> allStudents;
+    std::vector<Faculty> allFaculty;
 
 public:
-    void addMapping(string from, string to);
-    void clearMappings();
-    int getMappingCount() const { return mappings.size(); }
-    Mapping getMapping(int index) const;
+    FunctionsModule(const std::vector<Course>& courses, const std::vector<Student>& students, const std::vector<Faculty>& faculty);
 
-    bool isInjective();
-    bool isSurjective(vector<string> codomain);
-    bool isBijective(vector<string> codomain);
+    // Function analysis
+    void analyzeCourseToFaculty();
+    void analyzeFacultyToCourse();
+    void analyzeStudentToCourseLoad();
+    void analyzeAllMappings();
 
-    void display(string functionName) const;
+    // Function properties
+    bool isInjective(const std::map<std::string, std::string>& mapping);
+    bool isSurjective(const std::map<std::string, std::string>& mapping, const std::vector<std::string>& codomain);
+    bool isBijective(const std::map<std::string, std::string>& mapping, const std::vector<std::string>& codomain);
 
-    static void demonstrateFunctions();
-    static void demonstrateComposition();
+    // Function operations
+    std::map<std::string, std::string> getInverseMapping(const std::map<std::string, std::string>& mapping);
+    std::map<std::string, std::string> composeMappings(const std::map<std::string, std::string>& f, const std::map<std::string, std::string>& g);
+
+    void displayMappingProperties(const std::map<std::string, std::string>& mapping,
+        const std::vector<std::string>& domain,
+        const std::vector<std::string>& codomain,
+        const std::string& mappingName);
+
+private:
+    std::map<std::string, std::string> getCourseFacultyMapping();
+    std::map<std::string, int> getStudentCourseLoadMapping();
+    std::vector<std::string> getAllCourseCodes();
+    std::vector<std::string> getAllFacultyIds();
+    std::vector<std::string> getAllStudentRolls();
 };

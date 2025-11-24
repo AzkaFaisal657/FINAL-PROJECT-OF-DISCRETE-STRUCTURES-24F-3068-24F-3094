@@ -1,18 +1,25 @@
 #pragma once
-#include <string>
-#include <iostream>
 #include <vector>
-#include <map>
-using namespace std;
+#include <string>
+#include <chrono>
+#include "Student.h"
+#include "Course.h"
 
 class EfficiencyModule {
 private:
-    static map<string, bool> prereqCache;
+    std::vector<Student> allStudents;
+    std::vector<Course> allCourses;
 
 public:
-    static void demonstrateDP();
-    static void demonstrateMemoization();
-    static void benchmarkOperations();
-    static bool checkPrerequisitesMemoized(string courseCode, vector<string> completedCourses,
-        vector<pair<string, vector<string>>> coursePrereqs);
+    EfficiencyModule(const std::vector<Student>& students, const std::vector<Course>& courses);
+
+    void benchmarkAllAlgorithms();
+    void displayComplexityAnalysis();
+    void runPerformanceTests();
+
+private:
+    long long measureCombinationTime(int n, int r);
+    long long measureSetOperationTime();
+    long long measureRelationCheckTime();
+    long long measureInductionVerificationTime();
 };

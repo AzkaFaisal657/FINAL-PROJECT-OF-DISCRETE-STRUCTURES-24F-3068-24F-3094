@@ -1,103 +1,160 @@
 ﻿#include "SetOperations.h"
+#include <iostream>
+#include <cmath>
 
-void SetOperations::add(string element) {
-    for (string e : elements) {
-        if (e == element) return;
-    }
-    elements.push_back(element);
+SetOperations::SetOperations(const std::vector<Student>& students, const std::vector<Course>& courses, const std::vector<Faculty>& faculty)
+    : allStudents(students), allCourses(courses), allFaculty(faculty) {}
+
+std::vector<std::string> SetOperations::setUnion(const std::vector<std::string>& setA, const std::vector<std::string>& setB) {
+    std::set<std::string> unionSet(setA.begin(), setA.end());
+    unionSet.insert(setB.begin(), setB.end());
+    return std::vector<std::string>(unionSet.begin(), unionSet.end());
 }
 
-bool SetOperations::contains(string element) const {
-    for (string e : elements) {
-        if (e == element) return true;
-    }
-    return false;
-}
-
-int SetOperations::size() const {
-    return elements.size();
-}
-
-string SetOperations::getElement(int index) const {
-    if (index >= 0 && index < elements.size()) {
-        return elements[index];
-    }
-    return "";
-}
-
-SetOperations SetOperations::unionWith(const SetOperations& other) const {
-    SetOperations result;
-    for (string e : elements) result.add(e);
-    for (string e : other.elements) result.add(e);
-    return result;
-}
-
-SetOperations SetOperations::intersectionWith(const SetOperations& other) const {
-    SetOperations result;
-    for (string e : elements) {
-        if (other.contains(e)) {
-            result.add(e);
+std::vector<std::string> SetOperations::setIntersection(const std::vector<std::string>& setA, const std::vector<std::string>& setB) {
+    std::vector<std::string> intersection;
+    for (const auto& element : setA) {
+        if (std::find(setB.begin(), setB.end(), element) != setB.end()) {
+            intersection.push_back(element);
         }
     }
-    return result;
+    return removeDuplicates(intersection);
 }
 
-SetOperations SetOperations::differenceWith(const SetOperations& other) const {
-    SetOperations result;
-    for (string e : elements) {
-        if (!other.contains(e)) {
-            result.add(e);
+std::vector<std::string> SetOperations::setDifference(const std::vector<std::string>& setA, const std::vector<std::string>& setB) {
+    std::vector<std::string> difference;
+    for (const auto& element : setA) {
+        if (std::find(setB.begin(), setB.end(), element) == setB.end()) {
+            difference.push_back(element);
         }
     }
-    return result;
+    return difference;
 }
 
-bool SetOperations::isSubsetOf(const SetOperations& other) const {
-    for (string e : elements) {
-        if (!other.contains(e)) {
+bool SetOperations::isSubset(const std::vector<std::string>& setA, const std::vector<std::string>& setB) {
+    for (const auto& element : setA) {
+        if (std::find(setB.begin(), setB.end(), element) == setB.end()) {
             return false;
         }
     }
     return true;
 }
 
-bool SetOperations::equals(const SetOperations& other) const {
-    return isSubsetOf(other) && other.isSubsetOf(*this);
+bool SetOperations::isSuperset(const std::vector<std::string>& setA, const std::vector<std::string>& setB) {
+    return isSubset(setB, setA);
 }
 
-void SetOperations::display(string setName) const {
-    cout << setName << " = { ";
-    for (int i = 0; i < elements.size(); i++) {
-        cout << elements[i];
-        if (i < elements.size() - 1) cout << ", ";
+std::vector<std::string> SetOperations::getStudentsInBothCourses(const std::string& courseA, const std::string& courseB) {
+    auto studentsA = getStudentsEnrolledInCourse(courseA);
+    auto studentsB = getStudentsEnrolledInCourse(courseB);
+    return setIntersection(studentsA, studentsB);
+}
+
+std::vector<std::string> SetOperations::getStudentsInEitherCourse(const std::string& courseA, const std::string& courseB) {
+    auto studentsA = getStudentsEnrolledInCourse(courseA);
+    auto studentsB = getStudentsEnrolledInCourse(courseB);
+    return setUnion(studentsA, studentsB);
+}
+
+std::vector<std::string> SetOperations::getStudentsOnlyInFirstCourse(const std::string& courseA, const std::string& courseB) {
+    auto studentsA = getStudentsEnrolledInCourse(courseA);
+    auto studentsB = getStudentsEnrolledInCourse(courseB);
+    return setDifference(studentsA, studentsB);
+}
+
+std::vector<std::vector<std::string>> SetOperations::generatePowerSet(const std::vector<std::string>& elements) {
+    std::vector<std::vector<std::string>> powerSet;
+    int n = elements.size();
+    int total = 1 << n; // 2^n
+
+    for (int i = 0; i < total; ++i) {
+        std::vector<std::string> subset;
+        for (int j = 0; j < n; ++j) {
+            if (i & (1 << j)) {
+                subset.push_back(elements[j]);
+            }
+        }
+        powerSet.push_back(subset);
     }
-    cout << " }" << endl;
-    cout << "Cardinality: " << elements.size() << endl;
+
+    return powerSet;
 }
 
-void SetOperations::demonstrateSetOperations() {
-    cout << "\n=== MODULE 5: SET OPERATIONS ===" << endl;
+std::vector<std::vector<std::string>> SetOperations::generateLabGroupCombinations(const std::string& courseCode, int maxGroupSize) {
+    auto students = getStudentsEnrolledInCourse(courseCode);
+    auto powerSet = generatePowerSet(students);
 
-    SetOperations csStudents, mathStudents;
-    csStudents.add("22K-0001");
-    csStudents.add("22K-0002");
-    csStudents.add("22K-0003");
+    std::vector<std::vector<std::string>> validGroups;
+    for (const auto& subset : powerSet) {
+        if (subset.size() >= 2 && subset.size() <= maxGroupSize) {
+            validGroups.push_back(subset);
+        }
+    }
 
-    mathStudents.add("22K-0002");
-    mathStudents.add("22K-0003");
-    mathStudents.add("22K-0004");
+    return validGroups;
+}
 
-    cout << "\nOriginal Sets:" << endl;
-    csStudents.display("CS Students");
-    mathStudents.display("Math Students");
+std::vector<std::string> SetOperations::getCoursesTaughtByFaculty(const std::string& facultyId) {
+    for (const auto& faculty : allFaculty) {
+        if (faculty.getFacultyId() == facultyId) {
+            return faculty.getAssignedCourses();
+        }
+    }
+    return {};
+}
 
-    cout << "\n--- SET OPERATIONS ---" << endl;
-    SetOperations unionSet = csStudents.unionWith(mathStudents);
-    unionSet.display("Union (CS U Math)");
+std::vector<std::string> SetOperations::getCommonCourses(const std::string& facultyA, const std::string& facultyB) {
+    auto coursesA = getCoursesTaughtByFaculty(facultyA);
+    auto coursesB = getCoursesTaughtByFaculty(facultyB);
+    return setIntersection(coursesA, coursesB);
+}
 
-    SetOperations intersectionSet = csStudents.intersectionWith(mathStudents);
-    intersectionSet.display("Intersection (CS ∩ Math)");
+void SetOperations::displaySet(const std::vector<std::string>& set, const std::string& setName) {
+    std::cout << "\n=== " << setName << " ===\n";
+    std::cout << "Size: " << set.size() << " elements\n";
+    std::cout << "Elements: {";
+    for (size_t i = 0; i < set.size(); ++i) {
+        std::cout << set[i];
+        if (i < set.size() - 1) std::cout << ", ";
+    }
+    std::cout << "}\n";
+}
 
-    SetOperations differenceSet = csStudents.differenceWith(mathStudents);
-    differenceSet.display("Difference (CS - Math)");
+void SetOperations::displayPowerSet(const std::vector<std::vector<std::string>>& powerSet, const std::string& setName) {
+    std::cout << "\n=== " << setName << " (Power Set) ===\n";
+    std::cout << "Total subsets: " << powerSet.size() << "\n";
+    std::cout << "Sample subsets (first 10):\n";
+
+    for (size_t i = 0; i < std::min(powerSet.size(), size_t(10)); ++i) {
+        std::cout << "  {";
+        for (size_t j = 0; j < powerSet[i].size(); ++j) {
+            std::cout << powerSet[i][j];
+            if (j < powerSet[i].size() - 1) std::cout << ", ";
+        }
+        std::cout << "}\n";
+    }
+}
+
+std::vector<std::string> SetOperations::getStudentsEnrolledInCourse(const std::string& courseCode) {
+    std::vector<std::string> enrolled;
+    for (const auto& student : allStudents) {
+        if (student.isEnrolledIn(courseCode)) {
+            enrolled.push_back(student.getRollNumber());
+        }
+    }
+    return enrolled;
+}
+
+std::vector<std::string> SetOperations::removeDuplicates(const std::vector<std::string>& input) {
+    std::vector<std::string> result;
+    std::set<std::string> seen;
+
+    for (const auto& element : input) {
+        if (seen.find(element) == seen.end()) {
+            seen.insert(element);
+            result.push_back(element);
+        }
+    }
+
+    return result;
 }

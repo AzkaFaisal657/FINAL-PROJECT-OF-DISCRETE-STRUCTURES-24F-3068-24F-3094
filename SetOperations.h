@@ -1,31 +1,45 @@
 #pragma once
-#ifndef SET_OPERATIONS_H
-#define SET_OPERATIONS_H
-
-#include <string>
 #include <vector>
-#include <iostream>
-using namespace std;
+#include <string>
+#include <set>
+#include <algorithm>
+#include "Student.h"
+#include "Course.h"
+#include "Faculty.h"
 
 class SetOperations {
 private:
-    vector<string> elements;
+    std::vector<Student> allStudents;
+    std::vector<Course> allCourses;
+    std::vector<Faculty> allFaculty;
 
 public:
-    void add(string element);
-    bool contains(string element) const;
-    int size() const;
-    string getElement(int index) const;
+    SetOperations(const std::vector<Student>& students, const std::vector<Course>& courses, const std::vector<Faculty>& faculty);
 
-    SetOperations unionWith(const SetOperations& other) const;
-    SetOperations intersectionWith(const SetOperations& other) const;
-    SetOperations differenceWith(const SetOperations& other) const;
-    bool isSubsetOf(const SetOperations& other) const;
-    bool equals(const SetOperations& other) const;
+    // Basic set operations
+    std::vector<std::string> setUnion(const std::vector<std::string>& setA, const std::vector<std::string>& setB);
+    std::vector<std::string> setIntersection(const std::vector<std::string>& setA, const std::vector<std::string>& setB);
+    std::vector<std::string> setDifference(const std::vector<std::string>& setA, const std::vector<std::string>& setB);
+    bool isSubset(const std::vector<std::string>& setA, const std::vector<std::string>& setB);
+    bool isSuperset(const std::vector<std::string>& setA, const std::vector<std::string>& setB);
 
-    void display(string setName) const;
+    // Student set operations
+    std::vector<std::string> getStudentsInBothCourses(const std::string& courseA, const std::string& courseB);
+    std::vector<std::string> getStudentsInEitherCourse(const std::string& courseA, const std::string& courseB);
+    std::vector<std::string> getStudentsOnlyInFirstCourse(const std::string& courseA, const std::string& courseB);
 
-    static void demonstrateSetOperations();
+    // Power set operations
+    std::vector<std::vector<std::string>> generatePowerSet(const std::vector<std::string>& elements);
+    std::vector<std::vector<std::string>> generateLabGroupCombinations(const std::string& courseCode, int maxGroupSize);
+
+    // Faculty set operations
+    std::vector<std::string> getCoursesTaughtByFaculty(const std::string& facultyId);
+    std::vector<std::string> getCommonCourses(const std::string& facultyA, const std::string& facultyB);
+
+    void displaySet(const std::vector<std::string>& set, const std::string& setName);
+    void displayPowerSet(const std::vector<std::vector<std::string>>& powerSet, const std::string& setName);
+
+private:
+    std::vector<std::string> getStudentsEnrolledInCourse(const std::string& courseCode);
+    std::vector<std::string> removeDuplicates(const std::vector<std::string>& input);
 };
-
-#endif

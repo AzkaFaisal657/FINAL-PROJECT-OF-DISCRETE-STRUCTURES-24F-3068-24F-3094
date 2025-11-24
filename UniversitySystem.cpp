@@ -1,184 +1,138 @@
 #include "UniversitySystem.h"
 #include <iostream>
-using namespace std;
+#include <algorithm>
 
-// Forward declarations to avoid including all modules
-class CourseScheduler { public: static void demonstrateScheduling(); };
-class CombinationsModule { public: static void demonstrateCombinations(); };
-class InductionModule { public: static void demonstrateStrongInduction(); };
-class LogicEngine { public: void demonstrateLogicEngine(); };
-class SetOperations { public: static void demonstrateSetOperations(); };
-class RelationsModule { public: static void demonstrateRelations(); };
-class FunctionsModule { public: static void demonstrateFunctions(); };
-class AutomatedProof { public: static void demonstrateAutomatedProof(); };
-                             
-class ConflictDetector {
-public:
-  static void generateConflictReport(vector<Student*> students, vector<Course*> courses,
-  vector<Faculty*> faculty, vector<Room*> rooms);
-    };
-class EfficiencyModule { public: static void demonstrateDP(); static void demonstrateMemoization(); };
-class TestModule { public: static void runAllTests(); };
-
-UniversitySystem::UniversitySystem() {}
+UniversitySystem::UniversitySystem() {
+    loadAllData();
+}
 
 UniversitySystem::~UniversitySystem() {
- for (Course* course : courses) delete course;
- for (Student* student : students) delete student;
- for (Faculty* fac : faculty) delete fac;
- for (Room* room : rooms) delete room;
-  }
+    saveAllData();
+}
+
 void UniversitySystem::loadAllData() {
-cout << "Loading university data..." << endl;
- Course tempCourses[100];
- int courseCount = 0;
-                             FileHandler::loadCourses(tempCourses, courseCount);
-                             for (int i = 0; i < courseCount; i++) {
-                                 courses.push_back(new Course(tempCourses[i]));
-                             }
+    courses = FileHandler::loadCourses(coursesFile);
+    students = FileHandler::loadStudents(studentsFile, courses);
+    faculty = FileHandler::loadFaculty(facultyFile);
+    rooms = FileHandler::loadRooms(roomsFile);
 
-                             Student tempStudents[100];
-                             int studentCount = 0;
-                             FileHandler::loadStudents(tempStudents, studentCount);
-                             for (int i = 0; i < studentCount; i++) {
-                                 students.push_back(new Student(tempStudents[i]));
-                             }
+    std::cout << "Data loaded successfully:\n";
+    std::cout << " - Courses: " << courses.size() << "\n";
+    std::cout << " - Students: " << students.size() << "\n";
+    std::cout << " - Faculty: " << faculty.size() << "\n";
+    std::cout << " - Rooms: " << rooms.size() << "\n";
+}
 
-                             Faculty tempFaculty[50];
-                             int facultyCount = 0;
-                             FileHandler::loadFaculty(tempFaculty, facultyCount);
-                             for (int i = 0; i < facultyCount; i++) {
-                                 faculty.push_back(new Faculty(tempFaculty[i]));
-                             }
+void UniversitySystem::saveAllData() {
+    FileHandler::saveCourses(coursesFile, courses);
+    FileHandler::saveStudents(studentsFile, students);
+    FileHandler::saveFaculty(facultyFile, faculty);
+    FileHandler::saveRooms(roomsFile, rooms);
+    std::cout << "All data saved successfully!\n";
+}
 
-                             Room tempRooms[50];
-                             int roomCount = 0;
-                             FileHandler::loadRooms(tempRooms, roomCount);
-                             for (int i = 0; i < roomCount; i++) {
-                                 rooms.push_back(new Room(tempRooms[i]));
-                             }
-                         }
+std::vector<Course>& UniversitySystem::getCourses() { return courses; }
+std::vector<Student>& UniversitySystem::getStudents() { return students; }
+std::vector<Faculty>& UniversitySystem::getFaculty() { return faculty; }
+std::vector<Room>& UniversitySystem::getRooms() { return rooms; }
 
-                         // FIXED: Added both versions of getCourse
-                         Course* UniversitySystem::getCourse(const string& code) {
-                             for (Course* course : courses) {
-                                 if (course->getCode() == code) return course;
-                             }
-                             return nullptr;
-                         }
+Course* UniversitySystem::findCourse(const std::string& courseCode) {
+    for (auto& course : courses) {
+        if (course.getCode() == courseCode) {
+            return &course;
+        }
+    }
+    return nullptr;
+}
 
-                         Course* UniversitySystem::getCourse(const string& code) const {
-                             for (Course* course : courses) {
-                                 if (course->getCode() == code) return course;
-                             }
-                             return nullptr;
-                         }
+Student* UniversitySystem::findStudent(const std::string& rollNumber) {
+    for (auto& student : students) {
+        if (student.getRollNumber() == rollNumber) {
+            return &student;
+        }
+    }
+    return nullptr;
+}
 
-                         // FIXED: Added both versions of getStudent
-                         Student* UniversitySystem::getStudent(const string& id) {
-                             for (Student* student : students) {
-                                 if (student->getId() == id) return student;
-                             }
-                             return nullptr;
-                         }
+Faculty* UniversitySystem::findFaculty(const std::string& facultyId) {
+    for (auto& fac : faculty) {
+        if (fac.getFacultyId() == facultyId) {
+            return &fac;
+        }
+    }
+    return nullptr;
+}
 
-                         const Student* UniversitySystem::getStudent(const string& id) const {
-                             for (const Student* student : students) {
-                                 if (student->getId() == id) return student;
-                             }
-                             return nullptr;
-                         }
+Room* UniversitySystem::findRoom(const std::string& roomId) {
+    for (auto& room : rooms) {
+        if (room.getRoomId() == roomId) {
+            return &room;
+        }
+    }
+    return nullptr;
+}
 
-                         Faculty* UniversitySystem::getFaculty(const string& id) const {
-                             for (Faculty* fac : faculty) {
-                                 if (fac->getId() == id) return fac;
-                             }
-                             return nullptr;
-                         }
+std::vector<Student> UniversitySystem::getStudentsEnrolledInCourse(const std::string& courseCode) {
+    std::vector<Student> enrolled;
+    for (const auto& student : students) {
+        if (student.isEnrolledIn(courseCode)) {
+            enrolled.push_back(student);
+        }
+    }
+    return enrolled;
+}
 
-                         Room* UniversitySystem::getRoom(const string& id) const {
-                             for (Room* room : rooms) {
-                                 if (room->getRoomId() == id) return room;
-                             }
-                             return nullptr;
-                         }
+std::vector<std::string> UniversitySystem::getPrerequisiteChain(const std::string& courseCode) {
+    std::vector<std::string> chain;
+    std::string currentCourse = courseCode;
 
-                         bool UniversitySystem::canStudentEnroll(string studentId, string courseCode, string& reason) {
-                             Student* student = getStudent(studentId);
-                             Course* course = getCourse(courseCode);
+    while (true) {
+        Course* course = findCourse(currentCourse);
+        if (!course || course->getPrerequisite().empty()) {
+            break;
+        }
+        chain.push_back(course->getPrerequisite());
+        currentCourse = course->getPrerequisite();
+    }
 
-                             if (!student) { reason = "Student not found"; return false; }
-                             if (!course) { reason = "Course not found"; return false; }
-                             if (student->hasCompleted(courseCode)) { reason = "Already completed"; return false; }
-                             if (student->isEnrolled(courseCode)) { reason = "Already enrolled"; return false; }
+    std::reverse(chain.begin(), chain.end());
+    return chain;
+}
 
-                             reason = "Eligible for enrollment";
-                             return true;
-                         }
+bool UniversitySystem::checkPrerequisiteSatisfaction(const Student& student, const std::string& courseCode) {
+    auto chain = getPrerequisiteChain(courseCode);
+    for (const auto& prereq : chain) {
+        if (!student.hasCompleted(prereq)) {
+            return false;
+        }
+    }
+    return true;
+}
 
-                         bool UniversitySystem::enrollStudent(string studentId, string courseCode, string& errorMsg) {
-                             if (canStudentEnroll(studentId, courseCode, errorMsg)) {
-                                 Student* student = getStudent(studentId);
-                                 if (student) {
-                                     student->enrollInCourse(courseCode);
-                                     return true;
-                                 }
-                             }
-                             return false;
-                         }
+void UniversitySystem::displayAllStudents() const {
+    std::cout << "\n=== ALL STUDENTS ===\n";
+    for (const auto& student : students) {
+        std::cout << student.toString() << "\n\n";
+    }
+}
 
-                         void UniversitySystem::displaySystemInfo() const {
-                             cout << "\n=== FAST UNIVERSITY SYSTEM INFO ===" << endl;
-                             cout << "Total Courses: " << courses.size() << endl;
-                             cout << "Total Students: " << students.size() << endl;
-                             cout << "Total Faculty: " << faculty.size() << endl;
-                             cout << "Total Rooms: " << rooms.size() << endl;
-                         }
+void UniversitySystem::displayAllCourses() const {
+    std::cout << "\n=== ALL COURSES ===\n";
+    for (const auto& course : courses) {
+        std::cout << course.toString() << "\n";
+    }
+}
 
-                         void UniversitySystem::displayCoursesBySemester(int semester) const {
-                             cout << "\n=== SEMESTER " << semester << " COURSES ===" << endl;
-                             for (Course* course : courses) {
-                                 if (course->getSemester() == semester) {
-                                     course->display();
-                                 }
-                             }
-                         }
+void UniversitySystem::displayAllFaculty() const {
+    std::cout << "\n=== ALL FACULTY ===\n";
+    for (const auto& fac : faculty) {
+        std::cout << fac.toString() << "\n\n";
+    }
+}
 
-                         void UniversitySystem::displayStudentInfo(string studentId) const {
-                             const Student* student = getStudent(studentId);
-                             if (student) {
-                                 student->display();
-                             }
-                             else {
-                                 cout << "Student with ID " << studentId << " not found." << endl;
-                             }
-                         }
-
-                         void UniversitySystem::demonstrateAllModules() {
-                             cout << "\n" << string(60, '=') << endl;
-                             cout << "   FAST UNIVERSITY - ALL MODULES DEMONSTRATION" << endl;
-                             cout << string(60, '=') << endl;
-
-                             // These will be empty if modules aren't included, but won't cause linker errors
-                             CourseScheduler::demonstrateScheduling();
-                             CombinationsModule::demonstrateCombinations();
-                             InductionModule::demonstrateStrongInduction();
-
-                             LogicEngine logic;
-                             logic.demonstrateLogicEngine();
-
-                             SetOperations::demonstrateSetOperations();
-                             RelationsModule::demonstrateRelations();
-                             FunctionsModule::demonstrateFunctions();
-                             AutomatedProof::demonstrateAutomatedProof();
-
-                             ConflictDetector::generateConflictReport(students, courses, faculty, rooms);
-                             EfficiencyModule::demonstrateDP();
-                             EfficiencyModule::demonstrateMemoization();
-
-                             TestModule::runAllTests();
-
-                             cout << "\n" << string(60, '=') << endl;
-                             cout << "   ALL 12 MODULES DEMONSTRATED SUCCESSFULLY!" << endl;
-                             cout << string(60, '=') << endl;
-                         }
+void UniversitySystem::displayAllRooms() const {
+    std::cout << "\n=== ALL ROOMS ===\n";
+    for (const auto& room : rooms) {
+        std::cout << room.toString() << "\n";
+    }
+}

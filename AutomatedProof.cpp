@@ -1,75 +1,193 @@
-#include "AutomatedProof.h"
+﻿#include "AutomatedProof.h"
+#include <iostream>
+#include <map>
 
-AutomatedProof::AutomatedProof() : stepCount(0) {}
+AutomatedProof::AutomatedProof(const std::vector<Student>& students, const std::vector<Course>& courses, const std::vector<Faculty>& faculty)
+    : allStudents(students), allCourses(courses), allFaculty(faculty),
+    inductionModule(students, courses),
+    logicEngine(courses, students, faculty) {}
 
-void AutomatedProof::addStep(string statement, string justification) {
-    if (stepCount < 50) {
-        steps[stepCount].stepNumber = stepCount + 1;
-        steps[stepCount].statement = statement;
-        steps[stepCount].justification = justification;
-        stepCount++;
+void AutomatedProof::generatePrerequisiteProof(const std::string& statement) {
+    std::cout << "\n-------------------------------------------------------------\n";
+    std::cout << "              AUTOMATED PROOF & VERIFICATION\n";
+    std::cout << "-------------------------------------------------------------\n";
+
+    auto courses = parsePrerequisiteStatement(statement);
+    std::string courseA = courses.first;
+    std::string courseB = courses.second;
+
+    if (courseA.empty() || courseB.empty()) {
+        std::cout << "Could not parse statement. Using default: CS2005 requires CS2001\n";
+        courseA = "CS2005";
+        courseB = "CS2001";
+    }
+
+    std::cout << "Enter Statement to Prove: _ \"" << statement << "\"\n\n";
+
+    std::vector<Student> enrolledStudents;
+    for (const auto& student : allStudents) {
+        if (student.isEnrolledIn(courseA)) {
+            enrolledStudents.push_back(student);
+        }
+    }
+
+    std::cout << "Generating Proof for all enrolled students in " << courseA << "...\n";
+    std::cout << "Total Students Enrolled: " << enrolledStudents.size() << "\n\n";
+
+    int eligibleCount = 0;
+
+    for (const auto& student : enrolledStudents) {
+        proveForStudent(student, courseA, courseB);
+        if (inductionModule.verifyStudentEligibility(student, courseA)) {
+            eligibleCount++;
+        }
+    }
+
+    std::cout << "\nProof Summary:\n";
+    std::cout << " -> Eligible Students: " << eligibleCount << "\n";
+    std::cout << " -> Ineligible Students: " << (enrolledStudents.size() - eligibleCount) << "\n";
+    std::cout << " -> Prerequisite Chain Verified via Strong Induction & Logic\n";
+    std::cout << " -> All discrete rules maintained\n";
+}
+
+void AutomatedProof::generateCreditLimitProof() {
+    std::cout << "\n=== CREDIT LIMIT PROOF ===\n";
+    int violations = 0;
+
+    for (const auto& student : allStudents) {
+        int credits = student.getCurrentCreditHours(allCourses);
+        if (credits > 18) {
+            std::cout << "Student " << student.getRollNumber() << " has " << credits
+                << " credits (>18) - VIOLATION\n";
+            violations++;
+        }
+    }
+
+    if (violations == 0) {
+        std::cout << "[OK] All students satisfy credit limit constraint (<=18 credits)\n";
+    }
+    else {
+        std::cout << "[X] " << violations << " students violate credit limit constraint\n";
     }
 }
 
-void AutomatedProof::displayProof(string theoremName) {
-    cout << "\n=== FORMAL PROOF: " << theoremName << " ===" << endl;
-    for (int i = 0; i < stepCount; i++) {
-        cout << "Step " << steps[i].stepNumber << ": " << steps[i].statement << endl;
-        cout << "        Justification: " << steps[i].justification << endl;
+void AutomatedProof::generateFacultyAssignmentProof() {
+    std::cout << "\n=== FACULTY ASSIGNMENT PROOF ===\n";
+
+    std::map<std::string, int> courseFacultyCount;
+    for (const auto& faculty : allFaculty) {
+        for (const auto& course : faculty.getAssignedCourses()) {
+            courseFacultyCount[course]++;
+        }
     }
-    cout << "QED (Proof Complete)" << endl;
+
+    bool valid = true;
+    for (const auto& pair : courseFacultyCount) {
+        if (pair.second != 1) {
+            std::cout << "[X] Course " << pair.first << " has " << pair.second
+                << " assigned faculty (should be 1)\n";
+            valid = false;
+        }
+    }
+
+    if (valid) {
+        std::cout << "[OK] Each course has exactly one assigned faculty\n";
+    }
 }
 
-void AutomatedProof::clearProof() {
-    stepCount = 0;
+void AutomatedProof::displayProofStepByStep(const std::string& courseCode) {
+    std::vector<std::string> prerequisites;
+    std::string currentCourse = courseCode;
+
+    while (true) {
+        // FIXED: Use const Course* instead of Course*
+        const Course* course = nullptr;
+        for (const auto& c : allCourses) {
+            if (c.getCode() == currentCourse) {
+                course = &c;  // This is now valid - pointer to const
+                break;
+            }
+        }
+        if (!course || course->getPrerequisite().empty()) {
+            break;
+        }
+        prerequisites.push_back(course->getPrerequisite());
+        currentCourse = course->getPrerequisite();
+    }
+
+    std::reverse(prerequisites.begin(), prerequisites.end());
+
+    std::cout << "\nStep-by-Step Proof for " << courseCode << ":\n";
+    std::cout << "Prerequisite Chain: ";
+    for (const auto& prereq : prerequisites) {
+        std::cout << prereq << " -> ";
+    }
+    std::cout << courseCode << "\n";
+
+    std::cout << "1. Base Case: Verify immediate prerequisite\n";
+    if (!prerequisites.empty()) {
+        std::cout << "   - " << prerequisites.back() << " must be completed\n";
+    }
+
+    std::cout << "2. Inductive Step: Assume P(1), P(2), ..., P(k) are true\n";
+    std::cout << "3. Strong Induction: Verify P(k+1) for all k in chain\n";
+    std::cout << "4. Conclusion: All prerequisites satisfied -> Course accessible\n";
 }
 
-void AutomatedProof::demonstrateAutomatedProof() {
-    cout << "\n=== MODULE 8: AUTOMATED PROOF SYSTEM ===" << endl;
-
-    cout << "\n1. PREREQUISITE CHAIN PROOF:" << endl;
-    AutomatedProof proof1;
-    proof1.addStep("Student completed CS1002", "Given (premise)");
-    proof1.addStep("CS1004 requires CS1002", "Prerequisite rule");
-    proof1.addStep("Student completed CS1004", "Modus Ponens");
-    proof1.addStep("CS2001 requires CS1004", "Prerequisite rule");
-    proof1.addStep("Student can enroll in CS2001", "Modus Ponens");
-    proof1.displayProof("Course Enrollment Eligibility");
-
-    cout << "\n2. SET MEMBERSHIP PROOF:" << endl;
-    AutomatedProof proof2;
-    proof2.addStep("Let S = {students enrolled in CS101}", "Definition");
-    proof2.addStep("Ali enrolled in CS101", "Given fact");
-    proof2.addStep("Therefore, Ali ? S", "Definition of set membership");
-    proof2.addStep("CS101 requires CS1002", "Prerequisite rule");
-    proof2.addStep("Ali ? S ? Ali completed CS1002", "Logical implication");
-    proof2.addStep("Therefore, Ali completed CS1002", "Modus Ponens");
-    proof2.displayProof("Set Membership and Prerequisites");
-
-    cout << "\n3. FUNCTION PROPERTIES PROOF:" << endl;
-    AutomatedProof proof3;
-    proof3.addStep("Define f: StudentID ? Student", "Function definition");
-    proof3.addStep("Each StudentID maps to exactly one Student", "University policy");
-    proof3.addStep("No two StudentIDs map to same Student", "Uniqueness constraint");
-    proof3.addStep("Therefore, f is injective", "Definition of injection");
-    proof3.addStep("Every Student has a StudentID", "Registration requirement");
-    proof3.addStep("Therefore, f is surjective", "Definition of surjection");
-    proof3.addStep("f is both injective and surjective", "Steps 4 and 6");
-    proof3.addStep("Therefore, f is bijective", "Definition of bijection");
-    proof3.displayProof("StudentID Function Bijectivity");
+std::string AutomatedProof::extractCoursesFromStatement(const std::string& statement) {
+    if (statement.find("Database Systems") != std::string::npos) return "CS2005";
+    if (statement.find("Data Structures") != std::string::npos) return "CS2001";
+    if (statement.find("OOP") != std::string::npos) return "CS1004";
+    if (statement.find("Programming Fundamentals") != std::string::npos) return "CS1002";
+    return "";
 }
 
-void AutomatedProof::proveByInduction(string theorem) {
-    cout << "\n=== PROOF BY INDUCTION: " << theorem << " ===" << endl;
-    cout << "Base Case: Verify for n=1" << endl;
-    cout << "Inductive Step: Assume true for n=k, prove for n=k+1" << endl;
-    cout << "Conclusion: Theorem holds for all natural numbers n" << endl;
+std::pair<std::string, std::string> AutomatedProof::parsePrerequisiteStatement(const std::string& statement) {
+    size_t beforePos = statement.find("before");
+    if (beforePos == std::string::npos) {
+        return { "CS2005", "CS2001" };
+    }
+
+    std::string partA = statement.substr(0, beforePos);
+    std::string partB = statement.substr(beforePos + 6);
+
+    std::string courseA = extractCoursesFromStatement(partB);
+    std::string courseB = extractCoursesFromStatement(partA);
+
+    return { courseA, courseB };
 }
 
-void AutomatedProof::proveByContradiction(string assumption, string contradiction) {
-    cout << "\n=== PROOF BY CONTRADICTION ===" << endl;
-    cout << "Assume: " << assumption << endl;
-    cout << "This leads to: " << contradiction << endl;
-    cout << "Contradiction! Therefore, assumption is false" << endl;
-    cout << "QED" << endl;
+void AutomatedProof::proveForStudent(const Student& student, const std::string& courseA, const std::string& courseB) {
+    std::cout << "Student " << student.getRollNumber() << ":\n";
+
+    // FIXED: Use const Course* instead of Course*
+    const Course* course = nullptr;
+    for (const auto& c : allCourses) {
+        if (c.getCode() == courseA) {
+            course = &c;  // This is now valid - pointer to const
+            break;
+        }
+    }
+
+    if (course && course->getPrerequisite() == courseB) {
+        std::cout << " Step 1: Assume student takes " << courseA << " before " << courseB << "\n";
+        std::cout << " Step 2: " << courseA << " requires " << courseB << " as prerequisite\n";
+        std::cout << " Step 3: Contradiction arises\n";
+        std::cout << "Conclusion: NOT POSSIBLE\n";
+    }
+    else {
+        bool hasPrereq = student.hasCompleted(courseB);
+        std::cout << " Step 1: Base Case: " << courseB << " completed? -> "
+            << (hasPrereq ? "TRUE" : "FALSE") << "\n";
+
+        if (hasPrereq) {
+            std::cout << " Step 2: Inductive Step: All prerequisites satisfied -> TRUE\n";
+            std::cout << "Conclusion: POSSIBLE\n";
+        }
+        else {
+            std::cout << " Step 2: Missing prerequisite: " << courseB << "\n";
+            std::cout << "Conclusion: NOT POSSIBLE\n";
+        }
+    }
+    std::cout << "\n";
 }

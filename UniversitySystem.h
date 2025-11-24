@@ -1,22 +1,23 @@
 #pragma once
-#ifndef UNIVERSITY_SYSTEM_H
-#define UNIVERSITY_SYSTEM_H
-
+#include <vector>
+#include <string>
 #include "Course.h"
 #include "Student.h"
 #include "Faculty.h"
 #include "Room.h"
 #include "FileHandler.h"
-#include <vector>
-#include <string>
-using namespace std;
 
 class UniversitySystem {
 private:
-    vector<Course*> courses;
-    vector<Student*> students;
-    vector<Faculty*> faculty;
-    vector<Room*> rooms;
+    std::vector<Course> courses;
+    std::vector<Student> students;
+    std::vector<Faculty> faculty;
+    std::vector<Room> rooms;
+
+    std::string coursesFile = "courses.txt";
+    std::string studentsFile = "students.txt";
+    std::string facultyFile = "faculty.txt";
+    std::string roomsFile = "rooms.txt";
 
 public:
     UniversitySystem();
@@ -25,34 +26,24 @@ public:
     void loadAllData();
     void saveAllData();
 
-    // FIXED: Added both const and non-const versions
-    Course* getCourse(const string& code);
-    Course* getCourse(const string& code) const;
-    Student* getStudent(const string& id);
-    const Student* getStudent(const string& id) const;
-    Faculty* getFaculty(const string& id) const;
-    Room* getRoom(const string& id) const;
+    // Getters
+    std::vector<Course>& getCourses();
+    std::vector<Student>& getStudents();
+    std::vector<Faculty>& getFaculty();
+    std::vector<Room>& getRooms();
 
-    bool enrollStudent(string studentId, string courseCode, string& errorMsg);
-    bool canStudentEnroll(string studentId, string courseCode, string& reason);
+    // Utility methods
+    Course* findCourse(const std::string& courseCode);
+    Student* findStudent(const std::string& rollNumber);
+    Faculty* findFaculty(const std::string& facultyId);
+    Room* findRoom(const std::string& roomId);
 
-    void displaySystemInfo() const;
-    void displayCoursesBySemester(int semester) const;
-    void displayStudentInfo(string studentId) const;
+    std::vector<Student> getStudentsEnrolledInCourse(const std::string& courseCode);
+    std::vector<std::string> getPrerequisiteChain(const std::string& courseCode);
+    bool checkPrerequisiteSatisfaction(const Student& student, const std::string& courseCode);
 
-    void demonstrateAllModules();
-
-    int getCourseCount() const { return courses.size(); }
-    int getStudentCount() const { return students.size(); }
-    int getFacultyCount() const { return faculty.size(); }
-    int getRoomCount() const { return rooms.size(); }
-
-    Course* getCourseByIndex(int index) const {
-        return (index >= 0 && index < courses.size()) ? courses[index] : nullptr;
-    }
-    Student* getStudentByIndex(int index) const {
-        return (index >= 0 && index < students.size()) ? students[index] : nullptr;
-    }
+    void displayAllStudents() const;
+    void displayAllCourses() const;
+    void displayAllFaculty() const;
+    void displayAllRooms() const;
 };
-
-#endif

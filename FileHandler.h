@@ -1,31 +1,23 @@
 #pragma once
-#ifndef FILEHANDLER_H
-#define FILEHANDLER_H
-
+#include <vector>
 #include <string>
-#include <fstream>
 #include "Course.h"
+#include "Student.h"
 #include "Faculty.h"
 #include "Room.h"
-#include "Student.h"
-using namespace std;
 
 class FileHandler {
 public:
-    static void loadCourses(Course courses[], int& count);
-    static void loadFaculty(Faculty faculty[], int& count);
-    static void loadRooms(Room rooms[], int& count);
-    static void loadStudents(Student students[], int& count);
-    static void saveCourses(Course courses[], int count);
-    static void saveStudentProgress(Student students[], int count);
+    static std::vector<Course> loadCourses(const std::string& filename);
+    static std::vector<Student> loadStudents(const std::string& filename, const std::vector<Course>& allCourses);
+    static std::vector<Faculty> loadFaculty(const std::string& filename);
+    static std::vector<Room> loadRooms(const std::string& filename);
+
+    static void saveCourses(const std::string& filename, const std::vector<Course>& courses);
+    static void saveStudents(const std::string& filename, const std::vector<Student>& students);
+    static void saveFaculty(const std::string& filename, const std::vector<Faculty>& faculty);
+    static void saveRooms(const std::string& filename, const std::vector<Room>& rooms);
 
 private:
-    static void splitString(string str, string arr[], int& arrSize, char delimiter);
-
-    static const string COURSES_FILE;
-    static const string FACULTY_FILE;
-    static const string ROOMS_FILE;
-    static const string STUDENTS_FILE;
+    static std::vector<std::string> split(const std::string& str, char delimiter);
 };
-
-#endif

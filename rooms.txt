@@ -1,0 +1,20 @@
+L101,Lecture Hall,120,Available
+L102,Lecture Hall,120,Available
+L103,Lecture Hall,100,Available
+L104,Lecture Hall,100,Available
+L105,Lecture Hall,80,Available
+L106,Lecture Hall,80,Available
+C201,Computer Lab,40,Available
+C202,Computer Lab,40,Available
+C203,Computer Lab,40,Available
+C204,Computer Lab,40,Available
+C205,Computer Lab,35,Available
+C206,Computer Lab,35,Available
+C207,AI Lab,30,Available
+C208,Software Lab,35,Available
+C209,Network Lab,30,Available
+C210,Database Lab,35,Available
+S301,Seminar Hall,60,Available
+S302,Seminar Hall,60,Available
+A401,Auditorium,300,Available
+A402,Mini Auditorium,150,Available

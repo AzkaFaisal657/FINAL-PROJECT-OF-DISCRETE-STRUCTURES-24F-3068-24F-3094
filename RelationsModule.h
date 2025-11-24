@@ -1,29 +1,41 @@
 #pragma once
-#include <string>
 #include <vector>
-#include <iostream>
-using namespace std;
-
-struct Pair {
-    string first;
-    string second;
-};
+#include <string>
+#include <map>
+#include "Student.h"
+#include "Course.h"
+#include "Faculty.h"
 
 class RelationsModule {
 private:
-    vector<Pair> pairs;
+    std::vector<Student> allStudents;
+    std::vector<Course> allCourses;
+    std::vector<Faculty> allFaculty;
 
 public:
-    void addPair(string first, string second);
-    bool hasPair(string first, string second) const;
+    RelationsModule(const std::vector<Student>& students, const std::vector<Course>& courses, const std::vector<Faculty>& faculty);
 
-    bool isReflexive(vector<string> domain) const;
-    bool isSymmetric() const;
-    bool isTransitive() const;
-    bool isEquivalence(vector<string> domain) const;
-    bool isPartialOrder(vector<string> domain) const;
+    // Relation analysis
+    void analyzeStudentCourseRelation();
+    void analyzeCourseFacultyRelation();
+    void analyzeStudentFacultyRelation();
+    void analyzeAllRelations();
 
-    void display(string relationName) const;
+    // Relation properties
+    bool isReflexive(const std::vector<std::pair<std::string, std::string>>& relation);
+    bool isSymmetric(const std::vector<std::pair<std::string, std::string>>& relation);
+    bool isTransitive(const std::vector<std::pair<std::string, std::string>>& relation);
+    bool isAntiSymmetric(const std::vector<std::pair<std::string, std::string>>& relation);
 
-    static void demonstrateRelations();
+    // Relation composition
+    std::vector<std::pair<std::string, std::string>> composeRelations(
+        const std::vector<std::pair<std::string, std::string>>& R,
+        const std::vector<std::pair<std::string, std::string>>& S);
+
+    void displayRelationProperties(const std::vector<std::pair<std::string, std::string>>& relation, const std::string& relationName);
+
+private:
+    std::vector<std::pair<std::string, std::string>> getStudentCourseRelation();
+    std::vector<std::pair<std::string, std::string>> getCourseFacultyRelation();
+    std::vector<std::pair<std::string, std::string>> getStudentFacultyRelation();
 };

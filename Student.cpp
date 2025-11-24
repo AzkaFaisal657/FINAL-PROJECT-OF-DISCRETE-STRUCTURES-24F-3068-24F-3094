@@ -1,61 +1,67 @@
 #include "Student.h"
+#include "Course.h"
+#include <sstream>
+#include <algorithm>
 
-Student::Student() : id(""), name(""), currentSemester(0) {}
+Student::Student(const std::string& rollNumber, const std::string& name, int currentSemester,
+    const std::vector<std::string>& enrolledCourses)
+    : rollNumber(rollNumber), name(name), currentSemester(currentSemester), enrolledCourses(enrolledCourses) {}
 
-Student::Student(string id, string name, int semester)
-    : id(id), name(name), currentSemester(semester) {
-}
+std::string Student::getRollNumber() const { return rollNumber; }
+std::string Student::getName() const { return name; }
+int Student::getCurrentSemester() const { return currentSemester; }
+std::vector<std::string> Student::getEnrolledCourses() const { return enrolledCourses; }
+std::vector<std::string> Student::getCompletedCourses() const { return completedCourses; }
 
-void Student::completeCourse(string courseCode) {
-    for (int i = 0; i < enrolledCourses.size(); i++) {
-        if (enrolledCourses[i] == courseCode) {
-            enrolledCourses.erase(enrolledCourses.begin() + i);
-            break;
-        }
-    }
+void Student::setRollNumber(const std::string& rollNumber) { this->rollNumber = rollNumber; }
+void Student::setName(const std::string& name) { this->name = name; }
+void Student::setCurrentSemester(int semester) { this->currentSemester = semester; }
+void Student::setEnrolledCourses(const std::vector<std::string>& courses) { enrolledCourses = courses; }
+void Student::setCompletedCourses(const std::vector<std::string>& courses) { completedCourses = courses; }
 
-    if (!hasCompleted(courseCode)) {
-        completedCourses.push_back(courseCode);
-    }
-}
-
-void Student::enrollInCourse(string courseCode) {
-    if (!isEnrolled(courseCode)) {
+void Student::enrollInCourse(const std::string& courseCode) {
+    if (std::find(enrolledCourses.begin(), enrolledCourses.end(), courseCode) == enrolledCourses.end()) {
         enrolledCourses.push_back(courseCode);
     }
 }
 
-bool Student::hasCompleted(string courseCode) const {
-    for (const string& course : completedCourses) {
-        if (course == courseCode) return true;
+void Student::completeCourse(const std::string& courseCode) {
+    auto it = std::find(enrolledCourses.begin(), enrolledCourses.end(), courseCode);
+    if (it != enrolledCourses.end()) {
+        enrolledCourses.erase(it);
+        if (std::find(completedCourses.begin(), completedCourses.end(), courseCode) == completedCourses.end()) {
+            completedCourses.push_back(courseCode);
+        }
     }
-    return false;
 }
 
-bool Student::isEnrolled(string courseCode) const {
-    for (const string& course : enrolledCourses) {
-        if (course == courseCode) return true;
-    }
-    return false;
+bool Student::hasCompleted(const std::string& courseCode) const {
+    return std::find(completedCourses.begin(), completedCourses.end(), courseCode) != completedCourses.end();
 }
 
-string Student::getCompletedCourse(int index) const {
-    if (index >= 0 && index < completedCourses.size()) {
-        return completedCourses[index];
-    }
-    return "";
+bool Student::isEnrolledIn(const std::string& courseCode) const {
+    return std::find(enrolledCourses.begin(), enrolledCourses.end(), courseCode) != enrolledCourses.end();
 }
 
-string Student::getEnrolledCourse(int index) const {
-    if (index >= 0 && index < enrolledCourses.size()) {
-        return enrolledCourses[index];
+int Student::getCurrentCreditHours(const std::vector<Course>& allCourses) const {
+    int totalCredits = 0;
+    for (const auto& courseCode : enrolledCourses) {
+        for (const auto& course : allCourses) {
+            if (course.getCode() == courseCode) {
+                totalCredits += course.getCreditHours();
+                break;
+            }
+        }
     }
-    return "";
+    return totalCredits;
 }
 
-void Student::display() const {
-    cout << "Student: " << name << " (ID: " << id << ")" << endl;
-    cout << "Current Semester: " << currentSemester << endl;
-    cout << "Completed Courses: " << completedCourses.size() << endl;
-    cout << "Enrolled Courses: " << enrolledCourses.size() << endl;
+std::string Student::toString() const {
+    std::ostringstream oss;
+    oss << rollNumber << " - " << name << " (Semester " << currentSemester << ")";
+    oss << "\nEnrolled Courses: ";
+    for (const auto& course : enrolledCourses) {
+        oss << course << " ";
+    }
+    return oss.str();
 }

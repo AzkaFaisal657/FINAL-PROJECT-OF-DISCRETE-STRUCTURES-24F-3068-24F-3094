@@ -1,41 +1,91 @@
 ﻿#include "FunctionsModule.h"
+#include <iostream>
+#include <algorithm>
 
-void FunctionsModule::addMapping(string from, string to) {
-    Mapping m;
-    m.domain = from;
-    m.codomain = to;
-    mappings.push_back(m);
-}
+FunctionsModule::FunctionsModule(const std::vector<Course>& courses, const std::vector<Student>& students, const std::vector<Faculty>& faculty)
+    : allCourses(courses), allStudents(students), allFaculty(faculty) {}
 
-void FunctionsModule::clearMappings() {
-    mappings.clear();
-}
+void FunctionsModule::analyzeCourseToFaculty() {
+    std::cout << "\n-------------------------------------------------------------\n";
+    std::cout << "                FUNCTIONS & MAPPINGS MODULE\n";
+    std::cout << "-------------------------------------------------------------\n";
 
-Mapping FunctionsModule::getMapping(int index) const {
-    if (index >= 0 && index < mappings.size()) {
-        return mappings[index];
-    }
-    Mapping empty = { "", "" };
-    return empty;
-}
+    auto mapping = getCourseFacultyMapping();
+    auto domain = getAllCourseCodes();
+    auto codomain = getAllFacultyIds();
 
-bool FunctionsModule::isInjective() {
-    for (int i = 0; i < mappings.size(); i++) {
-        for (int j = i + 1; j < mappings.size(); j++) {
-            if (mappings[i].codomain == mappings[j].codomain &&
-                mappings[i].domain != mappings[j].domain) {
-                return false;
+    std::cout << "Checking f: Course → Faculty\n";
+    std::cout << "Total Courses: " << domain.size() << "\n";
+
+    displayMappingProperties(mapping, domain, codomain, "Course → Faculty");
+
+    std::cout << "Generating inverse mapping (Faculty → Courses)...\n";
+    auto inverse = getInverseMapping(mapping);
+
+    std::cout << " → Completed\n";
+    for (const auto& faculty : allFaculty) {
+        std::cout << " → " << faculty.getName() << ": ";
+        bool first = true;
+        for (const auto& pair : mapping) {
+            if (pair.second == faculty.getFacultyId()) {
+                if (!first) std::cout << ", ";
+                std::cout << pair.first;
+                first = false;
             }
         }
+        std::cout << "\n";
+    }
+
+    std::cout << "Function module operations completed successfully.\n";
+}
+
+void FunctionsModule::analyzeFacultyToCourse() {
+    auto mapping = getCourseFacultyMapping();
+    auto inverse = getInverseMapping(mapping);
+    auto domain = getAllFacultyIds();
+    auto codomain = getAllCourseCodes();
+
+    std::cout << "\nChecking f: Faculty → Course (Inverse)\n";
+    displayMappingProperties(inverse, domain, codomain, "Faculty → Course");
+}
+
+void FunctionsModule::analyzeStudentToCourseLoad() {
+    auto mapping = getStudentCourseLoadMapping();
+    std::cout << "\nChecking f: Student → Course Load\n";
+
+    std::cout << "Sample student course loads:\n";
+    int count = 0;
+    for (const auto& student : allStudents) {
+        if (count++ < 5) {
+            std::cout << " → " << student.getRollNumber() << ": "
+                << mapping[student.getRollNumber()] << " credits\n";
+        }
+    }
+}
+
+void FunctionsModule::analyzeAllMappings() {
+    analyzeCourseToFaculty();
+    analyzeFacultyToCourse();
+    analyzeStudentToCourseLoad();
+}
+
+bool FunctionsModule::isInjective(const std::map<std::string, std::string>& mapping) {
+    std::map<std::string, int> valueCount;
+    for (const auto& pair : mapping) {
+        valueCount[pair.second]++;
+    }
+
+    for (const auto& count : valueCount) {
+        if (count.second > 1) return false;
     }
     return true;
 }
 
-bool FunctionsModule::isSurjective(vector<string> codomain) {
-    for (const string& codomainElement : codomain) {
+bool FunctionsModule::isSurjective(const std::map<std::string, std::string>& mapping, const std::vector<std::string>& codomain) {
+    for (const auto& element : codomain) {
         bool found = false;
-        for (const Mapping& m : mappings) {
-            if (m.codomain == codomainElement) {
+        for (const auto& pair : mapping) {
+            if (pair.second == element) {
                 found = true;
                 break;
             }
@@ -45,65 +95,97 @@ bool FunctionsModule::isSurjective(vector<string> codomain) {
     return true;
 }
 
-bool FunctionsModule::isBijective(vector<string> codomain) {
-    return isInjective() && isSurjective(codomain);
+bool FunctionsModule::isBijective(const std::map<std::string, std::string>& mapping, const std::vector<std::string>& codomain) {
+    return isInjective(mapping) && isSurjective(mapping, codomain);
 }
 
-void FunctionsModule::display(string functionName) const {
-    cout << functionName << " = { ";
-    for (int i = 0; i < mappings.size(); i++) {
-        cout << "(" << mappings[i].domain << " → " << mappings[i].codomain << ")";
-        if (i < mappings.size() - 1) cout << ", ";
+std::map<std::string, std::string> FunctionsModule::getInverseMapping(const std::map<std::string, std::string>& mapping) {
+    std::map<std::string, std::string> inverse;
+    for (const auto& pair : mapping) {
+        // For one-to-many, store as comma-separated
+        if (inverse.find(pair.second) == inverse.end()) {
+            inverse[pair.second] = pair.first;
+        }
+        else {
+            inverse[pair.second] += ", " + pair.first;
+        }
     }
-    cout << " }" << endl;
+    return inverse;
 }
 
-void FunctionsModule::demonstrateFunctions() {
-    cout << "\n=== MODULE 7: FUNCTIONS & MAPPINGS ===" << endl;
+std::map<std::string, std::string> FunctionsModule::composeMappings(const std::map<std::string, std::string>& f, const std::map<std::string, std::string>& g) {
+    std::map<std::string, std::string> composition;
 
-    cout << "\n1. STUDENT → COURSE MAPPING:" << endl;
-    FunctionsModule studentCourse;
-    studentCourse.addMapping("Ali", "CS101");
-    studentCourse.addMapping("Sara", "CS102");
-    studentCourse.addMapping("Ahmed", "CS101");
+    for (const auto& f_pair : f) {
+        if (g.find(f_pair.second) != g.end()) {
+            composition[f_pair.first] = g.at(f_pair.second);
+        }
+    }
 
-    studentCourse.display("StudentToCourse");
-    cout << "Injective (one-to-one)? " << (studentCourse.isInjective() ? "Yes" : "No") << endl;
-    cout << "Reason: Multiple students can map to same course" << endl;
-
-    cout << "\n2. COURSE → FACULTY MAPPING:" << endl;
-    FunctionsModule courseFaculty;
-    courseFaculty.addMapping("CS1002", "Dr_Qamar");
-    courseFaculty.addMapping("CS1004", "Dr_Affan");
-    courseFaculty.addMapping("CS2001", "Dr_Qamar");
-
-    courseFaculty.display("CourseToFaculty");
-    cout << "Injective? " << (courseFaculty.isInjective() ? "Yes" : "No") << endl;
-    cout << "Reason: One faculty can teach multiple courses" << endl;
-
-    cout << "\n3. BIJECTION EXAMPLE:" << endl;
-    FunctionsModule idToStudent;
-    idToStudent.addMapping("22K-0001", "Ali");
-    idToStudent.addMapping("22K-0002", "Sara");
-    idToStudent.addMapping("22K-0003", "Ahmed");
-
-    vector<string> students = { "Ali", "Sara", "Ahmed" };
-    idToStudent.display("IDToStudent");
-    cout << "Injective? " << (idToStudent.isInjective() ? "Yes" : "No") << endl;
-    cout << "Surjective? " << (idToStudent.isSurjective(students) ? "Yes" : "No") << endl;
-    cout << "Bijective? " << (idToStudent.isBijective(students) ? "Yes" : "No") << endl;
-    cout << "This is a bijection: each ID maps to exactly one unique student" << endl;
+    return composition;
 }
 
-void FunctionsModule::demonstrateComposition() {
-    cout << "\n4. FUNCTION COMPOSITION:" << endl;
-    cout << "f: Student → StudentID" << endl;
-    cout << "g: StudentID → Semester" << endl;
-    cout << "g ∘ f: Student → Semester" << endl;
-    cout << "Example: g(f(Ali)) = g(22K-0001) = 3" << endl;
+void FunctionsModule::displayMappingProperties(const std::map<std::string, std::string>& mapping,
+    const std::vector<std::string>& domain,
+    const std::vector<std::string>& codomain,
+    const std::string& mappingName) {
+    std::cout << "Injective?  " << (isInjective(mapping) ? "YES" : "NO");
+    if (isInjective(mapping)) {
+        std::cout << "  (Each course has exactly one assigned faculty)";
+    }
+    std::cout << "\n";
 
-    cout << "\n5. INVERSE FUNCTION:" << endl;
-    cout << "f: StudentID → Student (bijection)" << endl;
-    cout << "f⁻¹: Student → StudentID" << endl;
-    cout << "Example: f(22K-0001) = Ali, f⁻¹(Ali) = 22K-0001" << endl;
+    std::cout << "Surjective? " << (isSurjective(mapping, codomain) ? "YES" : "NO");
+    if (!isSurjective(mapping, codomain)) {
+        std::cout << "   (Some faculty not teaching any course)";
+    }
+    std::cout << "\n";
+
+    std::cout << "Bijective?  " << (isBijective(mapping, codomain) ? "YES" : "NO") << "\n";
+}
+
+std::map<std::string, std::string> FunctionsModule::getCourseFacultyMapping() {
+    std::map<std::string, std::string> mapping;
+
+    for (const auto& faculty : allFaculty) {
+        for (const auto& courseCode : faculty.getAssignedCourses()) {
+            mapping[courseCode] = faculty.getFacultyId();
+        }
+    }
+
+    return mapping;
+}
+
+std::map<std::string, int> FunctionsModule::getStudentCourseLoadMapping() {
+    std::map<std::string, int> mapping;
+
+    for (const auto& student : allStudents) {
+        mapping[student.getRollNumber()] = student.getCurrentCreditHours(allCourses);
+    }
+
+    return mapping;
+}
+
+std::vector<std::string> FunctionsModule::getAllCourseCodes() {
+    std::vector<std::string> codes;
+    for (const auto& course : allCourses) {
+        codes.push_back(course.getCode());
+    }
+    return codes;
+}
+
+std::vector<std::string> FunctionsModule::getAllFacultyIds() {
+    std::vector<std::string> ids;
+    for (const auto& faculty : allFaculty) {
+        ids.push_back(faculty.getFacultyId());
+    }
+    return ids;
+}
+
+std::vector<std::string> FunctionsModule::getAllStudentRolls() {
+    std::vector<std::string> rolls;
+    for (const auto& student : allStudents) {
+        rolls.push_back(student.getRollNumber());
+    }
+    return rolls;
 }

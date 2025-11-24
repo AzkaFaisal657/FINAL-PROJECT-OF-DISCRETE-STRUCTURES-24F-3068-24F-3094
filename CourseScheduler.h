@@ -1,31 +1,27 @@
 #pragma once
-#include <string>
 #include <vector>
-#include <iostream>
-using namespace std;
+#include <string>
+#include <map>
+#include "Course.h"
+#include "Student.h"
 
 class CourseScheduler {
 private:
-    struct CourseNode {
-        string code;
-        vector<string> prerequisites;
-        bool visited;
-    };
-
-    vector<CourseNode> courses;
+    std::vector<Course> allCourses;
+    std::vector<Student> allStudents;
 
 public:
-    CourseScheduler() {}
+    CourseScheduler(const std::vector<Course>& courses, const std::vector<Student>& students);
 
-    void addCourse(string code, vector<string> prereqs);
-    bool canTakeCourse(string targetCourse, vector<string> completedCourses);
-    vector<vector<string>> generateValidSequences(int maxCourses);
-    void displayAllSequences();
-
-    static void demonstrateScheduling();
+    std::vector<std::vector<std::string>> generateValidSequences(int maxCoursesPerSemester = 5);
+    std::vector<std::string> getRecommendedSchedule(const Student& student, int targetSemester);
+    bool checkPrerequisiteOrder(const std::vector<std::string>& sequence);
+    void displayAllSequences(const std::vector<std::vector<std::string>>& sequences);
 
 private:
-    bool checkPrerequisites(string courseCode, vector<string> completedCourses);
-    CourseNode* findCourse(string code);
-    void generateSequencesHelper(vector<string> current, vector<vector<string>>& result, int maxDepth);
+    void generateSequencesDFS(int semester, std::vector<std::string>& current,
+        std::vector<std::vector<std::string>>& result,
+        std::map<std::string, bool>& taken, int maxPerSem);
+    bool canTakeCourse(const std::string& courseCode, const std::map<std::string, bool>& takenCourses);
+    std::vector<std::string> getCoursesForSemester(int semester);
 };

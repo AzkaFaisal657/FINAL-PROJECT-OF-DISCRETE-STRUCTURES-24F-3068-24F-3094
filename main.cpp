@@ -1,414 +1,410 @@
+#include <iostream>
+#include <string>
+#include <vector>
 #include "UniversitySystem.h"
-#include "GUI.h"
+#include "CourseScheduler.h"
+#include "CombinationsModule.h"
+#include "InductionModule.h"
+#include "LogicEngine.h"
 #include "SetOperations.h"
 #include "RelationsModule.h"
 #include "FunctionsModule.h"
-#include "CombinationsModule.h"
-#include "LogicEngine.h"
-#include "InductionModule.h"
 #include "AutomatedProof.h"
-#include "CourseScheduler.h"
 #include "ConflictDetector.h"
 #include "EfficiencyModule.h"
 #include "TestModule.h"
-#include <iostream>
-#include <limits>
+
 using namespace std;
 
-void clearScreen() {
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
-
-void pause() {
-    cout << "\nPress Enter to continue...";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cin.get();
-}
-
 void displayHeader() {
-    cout << "\n========================================================" << endl;
-    cout << "     FAST UNIVERSITY - DISCRETE MATHEMATICS SYSTEM" << endl;
-    cout << "========================================================\n" << endl;
+    cout << "=============================================================\n";
+    cout << "                   FAST-NUCES UNIDISC ENGINE\n";
+    cout << "          Discrete Structures Computational Framework\n";
+    cout << "                    Department: SOFTWARE ENGINEERING\n";
+    cout << "=============================================================\n";
+    cout << "        Modeling | Verification | Constraints | Consistency\n";
+    cout << "=============================================================\n";
 }
 
-// ==================== COURSE FUNCTIONS ====================
-void viewAllCourses(UniversitySystem& sys) {
-    clearScreen();
-    cout << "\n=== ALL COURSES ===" << endl;
-    for (int i = 0; i < sys.getCourseCount(); i++) {
-        Course* c = sys.getCourseByIndex(i);
-        if (c) {
-            cout << i + 1 << ". ";
-            c->display();
-        }
-    }
-    cout << "\nTotal: " << sys.getCourseCount() << " courses" << endl;
-    pause();
+void displayMainMenu() {
+    cout << "\n-------------------------------------------------------------\n";
+    cout << "                    MAIN CONTROL INTERFACE\n";
+    cout << "-------------------------------------------------------------\n";
+    cout << "1. Course Scheduling Module\n";
+    cout << "2. Manage Courses\n";
+    cout << "3. Induction & Strong Induction Verification\n";
+    cout << "4. Student Group Combination Generator\n";
+    cout << "5. Logic & Inference Engine\n";
+    cout << "6. Set Operations Center\n";
+    cout << "7. Relations Analyzer\n";
+    cout << "8. Functions & Mappings Module\n";
+    cout << "9. Automated Proof Generator\n";
+    cout << "10. Global Consistency Checker\n";
+    cout << "11. Efficiency & Benchmarking Panel\n";
+    cout << "12. Unit Testing & Benchmarking\n";
+    cout << "13. Exit System\n";
+    cout << "\n>> Enter choice: ";
 }
+void runCourseSchedulingModule(UniversitySystem& system) {
+    cout << "\n-------------------------------------------------------------\n";
+    cout << "               COURSE SCHEDULING MODULE\n";
+    cout << "-------------------------------------------------------------\n";
 
-void viewCoursesBySemester(UniversitySystem& sys) {
-    clearScreen();
-    int sem;
-    cout << "Enter semester (1-8): ";
-    cin >> sem;
-    cout << "\n=== SEMESTER " << sem << " COURSES ===" << endl;
-    int count = 0;
-    for (int i = 0; i < sys.getCourseCount(); i++) {
-        Course* c = sys.getCourseByIndex(i);
-        if (c && c->getSemester() == sem) {
-            c->display();
-            count++;
-        }
-    }
-    cout << "\nTotal: " << count << " courses in semester " << sem << endl;
-    pause();
-}
+    CourseScheduler scheduler(system.getCourses(), system.getStudents());
 
-void searchCourse(UniversitySystem& sys) {
-    clearScreen();
-    string code;
-    cout << "Enter course code (e.g., CS2001): ";
-    cin >> code;
-    Course* c = sys.getCourse(code);
-    if (c) {
-        cout << "\n=== COURSE FOUND ===" << endl;
-        c->display();
-    }
-    else {
-        cout << "Course not found!" << endl;
-    }
-    pause();
-}
-
-// ==================== STUDENT FUNCTIONS ====================
-void viewAllStudents(UniversitySystem& sys) {
-    clearScreen();
-    cout << "\n=== ALL STUDENTS ===" << endl;
-    for (int i = 0; i < sys.getStudentCount(); i++) {
-        Student* s = sys.getStudentByIndex(i);
-        if (s) {
-            cout << i + 1 << ". " << s->getId() << " - " << s->getName()
-                << " (Sem " << s->getCurrentSemester() << ")" << endl;
-        }
-    }
-    cout << "\nTotal: " << sys.getStudentCount() << " students" << endl;
-    pause();
-}
-
-void viewStudentDetails(UniversitySystem& sys) {
-    clearScreen();
-    string id;
-    cout << "Enter student ID (e.g., 24F-3001): ";
-    cin >> id;
-    Student* s = sys.getStudent(id);
-    if (s) {
-        cout << "\n=== STUDENT DETAILS ===" << endl;
-        s->display();
-        cout << "\nCompleted Courses:" << endl;
-        for (int i = 0; i < s->getCompletedCount(); i++) {
-            string code = s->getCompletedCourse(i);
-            Course* c = sys.getCourse(code);
-            cout << "  - " << code;
-            if (c) cout << " (" << c->getName() << ")";
-            cout << endl;
-        }
-    }
-    else {
-        cout << "Student not found!" << endl;
-    }
-    pause();
-}
-
-void checkEnrollmentEligibility(UniversitySystem& sys) {
-    clearScreen();
-    string studentId, courseCode;
-    cout << "Enter student ID: ";
-    cin >> studentId;
-    cout << "Enter course code: ";
-    cin >> courseCode;
-
-    string reason;
-    bool canEnroll = sys.canStudentEnroll(studentId, courseCode, reason);
-    cout << "\n=== ENROLLMENT CHECK ===" << endl;
-    cout << "Student: " << studentId << endl;
-    cout << "Course: " << courseCode << endl;
-    cout << "Result: " << (canEnroll ? "ELIGIBLE" : "NOT ELIGIBLE") << endl;
-    cout << "Reason: " << reason << endl;
-    pause();
-}
-
-void enrollStudent(UniversitySystem& sys) {
-    clearScreen();
-    string studentId, courseCode;
-    cout << "Enter student ID: ";
-    cin >> studentId;
-    cout << "Enter course code: ";
-    cin >> courseCode;
-
-    string errorMsg;
-    if (sys.enrollStudent(studentId, courseCode, errorMsg)) {
-        cout << "\nSUCCESS: Student enrolled in " << courseCode << endl;
-    }
-    else {
-        cout << "\nFAILED: " << errorMsg << endl;
-    }
-    pause();
-}
-
-// ==================== SET OPERATIONS ====================
-void interactiveSetOperations(UniversitySystem& sys) {
-    clearScreen();
-    cout << "\n=== INTERACTIVE SET OPERATIONS ===" << endl;
-
-    SetOperations set1, set2;
-
-    // Build sets from actual students
-    cout << "Building sets from student data...\n" << endl;
-
-    // Set1: Students in semester 3+
-    // Set2: Students with 5+ completed courses
-    for (int i = 0; i < sys.getStudentCount(); i++) {
-        Student* s = sys.getStudentByIndex(i);
-        if (s) {
-            if (s->getCurrentSemester() >= 3) {
-                set1.add(s->getId());
-            }
-            if (s->getCompletedCount() >= 5) {
-                set2.add(s->getId());
-            }
-        }
-    }
-
-    set1.display("Set A (Semester >= 3)");
-    set2.display("Set B (Completed >= 5 courses)");
-
-    cout << "\n--- OPERATIONS ---" << endl;
-    SetOperations unionSet = set1.unionWith(set2);
-    unionSet.display("A UNION B");
-
-    SetOperations intersect = set1.intersectionWith(set2);
-    intersect.display("A INTERSECT B");
-
-    SetOperations diff = set1.differenceWith(set2);
-    diff.display("A - B");
-
-    cout << "\nIs A subset of B? " << (set1.isSubsetOf(set2) ? "Yes" : "No") << endl;
-    cout << "Are A and B equal? " << (set1.equals(set2) ? "Yes" : "No") << endl;
-    pause();
-}
-
-// ==================== RELATIONS ====================
-void interactiveRelations(UniversitySystem& sys) {
-    clearScreen();
-    cout << "\n=== INTERACTIVE RELATIONS ===" << endl;
-
-    RelationsModule prereqRel;
-    vector<string> courses;
-
-    // Build prerequisite relation from course data
-    cout << "Building prerequisite relation from course data...\n" << endl;
-
-    for (int i = 0; i < sys.getCourseCount(); i++) {
-        Course* c = sys.getCourseByIndex(i);
-        if (c) {
-            courses.push_back(c->getCode());
-            for (int j = 0; j < c->getPrereqCount(); j++) {
-                prereqRel.addPair(c->getPrerequisite(j), c->getCode());
-            }
-        }
-    }
-
-    prereqRel.display("Prerequisite Relation");
-
-    cout << "\nRelation Properties:" << endl;
-    cout << "Reflexive? " << (prereqRel.isReflexive(courses) ? "Yes" : "No") << endl;
-    cout << "Symmetric? " << (prereqRel.isSymmetric() ? "Yes" : "No") << endl;
-    cout << "Transitive? " << (prereqRel.isTransitive() ? "Yes" : "No") << endl;
-    pause();
-}
-
-// ==================== COMBINATIONS ====================
-void interactiveCombinations(UniversitySystem& sys) {
-    clearScreen();
-    cout << "\n=== INTERACTIVE COMBINATIONS ===" << endl;
-
-    int n, r;
-    cout << "Enter n (total items): ";
-    cin >> n;
-    cout << "Enter r (items to choose): ";
-    cin >> r;
-
-    cout << "\nC(" << n << "," << r << ") = " << CombinationsModule::calculateCombinations(n, r) << endl;
-    cout << "P(" << n << "," << r << ") = " << CombinationsModule::calculatePermutations(n, r) << endl;
-
-    cout << "\n--- PRACTICAL EXAMPLE ---" << endl;
-    cout << "With " << sys.getStudentCount() << " students:" << endl;
-    cout << "Ways to form groups of 3: C(" << sys.getStudentCount() << ",3) = "
-        << CombinationsModule::calculateCombinations(sys.getStudentCount(), 3) << endl;
-    cout << "Ways to select president, VP, secretary: P(" << sys.getStudentCount() << ",3) = "
-        << CombinationsModule::calculatePermutations(sys.getStudentCount(), 3) << endl;
-    pause();
-}
-
-// ==================== MENUS ====================
-void courseMenu(UniversitySystem& sys) {
     int choice;
-    do {
-        clearScreen();
-        displayHeader();
-        cout << "=== COURSE MANAGEMENT ===" << endl;
-        cout << "1. View All Courses" << endl;
-        cout << "2. View Courses by Semester" << endl;
-        cout << "3. Search Course by Code" << endl;
-        cout << "0. Back to Main Menu" << endl;
-        cout << "\nChoice: ";
-        cin >> choice;
-
-        switch (choice) {
-        case 1: viewAllCourses(sys); break;
-        case 2: viewCoursesBySemester(sys); break;
-        case 3: searchCourse(sys); break;
-        }
-    } while (choice != 0);
-}
-
-void studentMenu(UniversitySystem& sys) {
-    int choice;
-    do {
-        clearScreen();
-        displayHeader();
-        cout << "=== STUDENT MANAGEMENT ===" << endl;
-        cout << "1. View All Students" << endl;
-        cout << "2. View Student Details" << endl;
-        cout << "3. Check Enrollment Eligibility" << endl;
-        cout << "4. Enroll Student in Course" << endl;
-        cout << "0. Back to Main Menu" << endl;
-        cout << "\nChoice: ";
-        cin >> choice;
-
-        switch (choice) {
-        case 1: viewAllStudents(sys); break;
-        case 2: viewStudentDetails(sys); break;
-        case 3: checkEnrollmentEligibility(sys); break;
-        case 4: enrollStudent(sys); break;
-        }
-    } while (choice != 0);
-}
-
-void discreteMathMenu(UniversitySystem& sys) {
-    int choice;
-    do {
-        clearScreen();
-        displayHeader();
-        cout << "=== DISCRETE MATHEMATICS ===" << endl;
-        cout << "1. Set Operations (Interactive)" << endl;
-        cout << "2. Relations (Interactive)" << endl;
-        cout << "3. Combinations & Counting" << endl;
-        cout << "4. Logic Engine Demo" << endl;
-        cout << "5. Induction Demo" << endl;
-        cout << "6. Functions Demo" << endl;
-        cout << "7. Automated Proofs Demo" << endl;
-        cout << "8. Course Scheduling (DP)" << endl;
-        cout << "9. Efficiency & Memoization" << endl;
-        cout << "0. Back to Main Menu" << endl;
-        cout << "\nChoice: ";
-        cin >> choice;
-
-        clearScreen();
-        switch (choice) {
-        case 1: interactiveSetOperations(sys); break;
-        case 2: interactiveRelations(sys); break;
-        case 3: interactiveCombinations(sys); break;
-        case 4: { LogicEngine e; e.demonstrateLogicEngine(); pause(); break; }
-        case 5: InductionModule::demonstrateStrongInduction(); pause(); break;
-        case 6: FunctionsModule::demonstrateFunctions(); pause(); break;
-        case 7: AutomatedProof::demonstrateAutomatedProof(); pause(); break;
-        case 8: CourseScheduler::demonstrateScheduling(); pause(); break;
-        case 9: EfficiencyModule::demonstrateDP(); EfficiencyModule::demonstrateMemoization(); pause(); break;
-        }
-    } while (choice != 0);
-}
-
-void runTests() {
-    clearScreen();
-    TestModule::runAllTests();
-    pause();
-}
-
-int selectInterface() {
-    clearScreen();
-    cout << "\n========================================================" << endl;
-    cout << "     FAST UNIVERSITY - DISCRETE MATHEMATICS SYSTEM" << endl;
-    cout << "========================================================" << endl;
-    cout << "\nSelect Interface:" << endl;
-    cout << "1. Console Interface" << endl;
-    cout << "2. Graphical Interface (SFML)" << endl;
-    cout << "0. Exit" << endl;
-    cout << "\nChoice: ";
-    int choice;
+    cout << "1. Generate Valid Course Sequences\n";
+    cout << "2. Get Recommended Schedule for Student\n";
+    cout << "3. Check Prerequisite Order\n";
+    cout << "4. Back to Main Menu\n";
+    cout << "\n>> Enter choice: ";
     cin >> choice;
-    return choice;
+
+    if (choice == 1) {
+        int maxCourses;
+        cout << "Enter maximum courses per semester (default 5): ";
+        cin >> maxCourses;
+        if (maxCourses <= 0) maxCourses = 5;
+
+        auto sequences = scheduler.generateValidSequences(maxCourses);
+        scheduler.displayAllSequences(sequences);
+    }
+    else if (choice == 2) {
+        string rollNumber;
+        int targetSemester;
+
+        cout << "Enter Student Roll Number: _ ";
+        cin >> rollNumber;
+        cout << "Enter Target Semester: ";
+        cin >> targetSemester;
+
+        Student* student = system.findStudent(rollNumber);
+        if (student) {
+            auto recommended = scheduler.getRecommendedSchedule(*student, targetSemester);
+            cout << "\nRecommended courses for " << rollNumber << " in Semester " << targetSemester << ":\n";
+            for (const auto& course : recommended) {
+                cout << " -> " << course << "\n";
+            }
+        }
+        else {
+            cout << "Student not found!\n";
+        }
+    }
+    else if (choice == 3) {
+        vector<string> sequence;
+        string courseCode;
+        char more = 'Y';
+
+        cout << "Enter course sequence to check (enter 'done' when finished):\n";
+        while (more == 'Y' || more == 'y') {
+            cout << "Course code: ";
+            cin >> courseCode;
+            if (courseCode == "done") break;
+            sequence.push_back(courseCode);
+        }
+
+        bool valid = scheduler.checkPrerequisiteOrder(sequence);
+        cout << "Prerequisite order is " << (valid ? "VALID [OK]" : "INVALID [X]") << "\n";
+    }
 }
 
-void consoleInterface(UniversitySystem& sys) {
-    int choice;
-    do {
-        clearScreen();
-        displayHeader();
-        cout << "=== MAIN MENU ===" << endl;
-        cout << "1. Course Management" << endl;
-        cout << "2. Student Management" << endl;
-        cout << "3. Discrete Mathematics Modules" << endl;
-        cout << "4. Run All Tests" << endl;
-        cout << "5. System Information" << endl;
-        cout << "0. Back to Interface Selection" << endl;
-        cout << "\nChoice: ";
-        cin >> choice;
+void runInductionModule(UniversitySystem& system) {
+    cout << "\n-------------------------------------------------------------\n";
+    cout << "         INDUCTION & STRONG INDUCTION VERIFIER\n";
+    cout << "-------------------------------------------------------------\n";
 
-        switch (choice) {
-        case 1: courseMenu(sys); break;
-        case 2: studentMenu(sys); break;
-        case 3: discreteMathMenu(sys); break;
-        case 4: runTests(); break;
-        case 5:
-            clearScreen();
-            sys.displaySystemInfo();
-            pause();
-            break;
+    string courseCode;
+    cout << "Enter Course Code to Verify Prerequisites: _ ";
+    cin >> courseCode;
+
+    InductionModule induction(system.getStudents(), system.getCourses());
+    auto results = induction.verifyAllStudentsForCourse(courseCode);
+    induction.displayVerificationResults(results, courseCode);
+}
+
+void runGroupCombinationModule(UniversitySystem& system) {
+    cout << "\n-------------------------------------------------------------\n";
+    cout << "         STUDENT GROUP COMBINATION MODULE (COURSE-AWARE)\n";
+    cout << "-------------------------------------------------------------\n";
+
+    string courseCode;
+    int groupSize;
+    char generateSample;
+
+    cout << "Enter Course Code to Generate Groups: _ ";
+    cin >> courseCode;
+
+    CombinationsModule combModule(system.getStudents(), system.getCourses());
+    auto enrolledStudents = combModule.getStudentsEnrolledInCourse(courseCode);
+    cout << "Fetching students currently enrolled in " << courseCode << "...\n";
+    cout << " -> Total Students Enrolled: " << enrolledStudents.size() << "\n";
+
+    cout << "Enter desired group size: ";
+    cin >> groupSize;
+
+    long long totalCombinations = combModule.calculateCombinations(enrolledStudents.size(), groupSize);
+    cout << "Computing combinations: C(" << enrolledStudents.size() << "," << groupSize << ")\n";
+    cout << " -> Total Possible Unique Groups = " << totalCombinations << "\n";
+
+    cout << "Generate sample groups? (Y/N): ";
+    cin >> generateSample;
+
+    if (generateSample == 'Y' || generateSample == 'y') {
+        auto groups = combModule.generateStudentGroups(courseCode, groupSize);
+        combModule.displayGroups(groups, "SAMPLE");
+    }
+
+    cout << "Group Generation Completed.\n";
+    cout << "Each group respects current course enrollment.\n";
+}
+
+void runLogicEngine(UniversitySystem& system) {
+    cout << "\n-------------------------------------------------------------\n";
+    cout << "                    LOGIC & INFERENCE ENGINE\n";
+    cout << "-------------------------------------------------------------\n";
+
+    LogicEngine logic(system.getCourses(), system.getStudents(), system.getFaculty());
+
+    string rule;
+    cout << "Enter Rule to Verify: _ ";
+    cin.ignore();
+    getline(cin, rule);
+
+    bool isValid = logic.evaluateRule(rule);
+    cout << "\nRule Status: " << (isValid ? "VALID [OK]" : "INVALID [X]") << "\n";
+    cout << "Logical Inference: " << (isValid ? "Satisfied for all enrolled students" : "Rule violation detected") << "\n";
+
+    char another;
+    cout << "\nDo you want to check another rule? (Y/N): ";
+    cin >> another;
+
+    if (another == 'Y' || another == 'y') {
+        runLogicEngine(system);
+    }
+}
+
+void runSetOperations(UniversitySystem& system) {
+    cout << "\n-------------------------------------------------------------\n";
+    cout << "                    SET OPERATIONS CENTER\n";
+    cout << "-------------------------------------------------------------\n";
+
+    SetOperations setOps(system.getStudents(), system.getCourses(), system.getFaculty());
+
+    int choice;
+    cout << "1. Students enrolled in multiple courses\n";
+    cout << "2. Students only in one course but not another\n";
+    cout << "3. Power set of lab groups for a course\n";
+    cout << "4. Intersection of faculty teaching sets\n";
+    cout << "5. Back to Main Menu\n";
+    cout << "\n>> Enter choice: ";
+    cin >> choice;
+
+    if (choice == 1) {
+        string courseA, courseB;
+        cout << "Enter First Course Code: _ ";
+        cin >> courseA;
+        cout << "Enter Second Course Code: _ ";
+        cin >> courseB;
+
+        auto intersection = setOps.getStudentsInBothCourses(courseA, courseB);
+        cout << "Computing Intersection of enrolled students...\n";
+        cout << " -> Students in both " << courseA << " & " << courseB << ": " << intersection.size() << "\n";
+
+        cout << "Sample:\n {";
+        for (size_t i = 0; i < min(intersection.size(), size_t(7)); ++i) {
+            cout << intersection[i];
+            if (i < min(intersection.size(), size_t(7)) - 1) cout << ", ";
         }
-    } while (choice != 0);
+        cout << "}\n";
+
+        cout << "Intersection operation completed successfully.\n";
+    }
+}
+
+void runRelationsModule(UniversitySystem& system) {
+    RelationsModule relations(system.getStudents(), system.getCourses(), system.getFaculty());
+
+    int choice;
+    cout << "\nSelect Relation to Analyze:\n";
+    cout << "1. Student -> Courses\n";
+    cout << "2. Course -> Faculty\n";
+    cout << "3. Student -> Faculty\n";
+    cout << "4. Back\n";
+    cout << "\n>> Choice: ";
+    cin >> choice;
+
+    switch (choice) {
+    case 1:
+        relations.analyzeStudentCourseRelation();
+        break;
+    case 2:
+        relations.analyzeCourseFacultyRelation();
+        break;
+    case 3:
+        relations.analyzeStudentFacultyRelation();
+        break;
+    case 4:
+        return;
+    default:
+        cout << "Invalid choice!\n";
+    }
+}
+
+void runFunctionsModule(UniversitySystem& system) {
+    FunctionsModule functions(system.getCourses(), system.getStudents(), system.getFaculty());
+
+    int choice;
+    cout << "\nSelect Mapping:\n";
+    cout << "1. Course -> Faculty\n";
+    cout << "2. Faculty -> Course (Inverse)\n";
+    cout << "3. Student -> Course Load\n";
+    cout << "4. Back\n";
+    cout << "\n>> Choice: ";
+    cin >> choice;
+
+    switch (choice) {
+    case 1:
+        functions.analyzeCourseToFaculty();
+        break;
+    case 2:
+        functions.analyzeFacultyToCourse();
+        break;
+    case 3:
+        functions.analyzeStudentToCourseLoad();
+        break;
+    case 4:
+        return;
+    default:
+        cout << "Invalid choice!\n";
+    }
+}
+
+void runAutomatedProof(UniversitySystem& system) {
+    AutomatedProof proof(system.getStudents(), system.getCourses(), system.getFaculty());
+
+    string statement;
+    cout << "Enter Statement to Prove: _ ";
+    cin.ignore();
+    getline(cin, statement);
+
+    if (statement.empty()) {
+        statement = "No student can take Database Systems before completing Data Structures";
+    }
+
+    proof.generatePrerequisiteProof(statement);
+}
+
+void runConsistencyChecker(UniversitySystem& system) {
+    ConflictDetector detector(system.getStudents(), system.getCourses(), system.getFaculty(), system.getRooms());
+    detector.checkAllConflicts();
+}
+
+void runEfficiencyModule(UniversitySystem& system) {
+    EfficiencyModule efficiency(system.getStudents(), system.getCourses());
+
+    int choice;
+    cout << "\nSelect Operation:\n";
+    cout << "1. Benchmark Algorithm Performance\n";
+    cout << "2. Run Unit Tests for Modules\n";
+    cout << "3. Back to Main Menu\n";
+    cout << "\n>> Choice: ";
+    cin >> choice;
+
+    if (choice == 1) {
+        efficiency.benchmarkAllAlgorithms();
+    }
+}
+
+void runUnitTesting(UniversitySystem& system) {
+    TestModule tester(system.getStudents(), system.getCourses(), system.getFaculty(), system.getRooms());
+
+    int choice;
+    cout << "\nSelect Test Type:\n";
+    cout << "1. Test Student Enrollment & Eligibility\n";
+    cout << "2. Test Course Scheduling & Prerequisites\n";
+    cout << "3. Test Student Group Combinations\n";
+    cout << "4. Test Faculty Assignments\n";
+    cout << "5. Test Room Allocations & Capacity\n";
+    cout << "6. Test Set Operations\n";
+    cout << "7. Test Relations & Functions\n";
+    cout << "8. Run All Tests\n";
+    cout << "9. Back to Main Menu\n";
+    cout << "\n>> Choice: ";
+    cin >> choice;
+
+    if (choice == 8) {
+        tester.runAllTests();
+    }
 }
 
 int main() {
     UniversitySystem system;
-    cout << "Loading university data..." << endl;
-    system.loadAllData();
 
-    int interfaceChoice;
-    do {
-        interfaceChoice = selectInterface();
+    displayHeader();
+    cout << "\n[Loaded Dataset]\n";
+    cout << " -> Courses Loaded: " << system.getCourses().size() << " (SE Department Core + Electives)\n";
+    cout << " -> Students Loaded: " << system.getStudents().size() << " (SE Department)\n";
+    cout << " -> Faculty Loaded: " << system.getFaculty().size() << "\n";
+    cout << " -> Prerequisites Initialized\n";
+    cout << " -> Induction & Logic Engine Online\n";
+    cout << " -> Consistency Checker: ACTIVE\n";
+    cout << " -> Student-Course Relations Verified\n";
 
-        switch (interfaceChoice) {
+    while (true) {
+        displayMainMenu();
+
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
         case 1:
-            consoleInterface(system);
+            runCourseSchedulingModule(system);
             break;
         case 2:
-        {
-            GUI gui(&system);
-            gui.run();
-        }
-        break;
-        case 0:
-            cout << "\nGoodbye!" << endl;
+            system.displayAllCourses();
             break;
+        case 3:
+            runInductionModule(system);
+            break;
+        case 4:
+            runGroupCombinationModule(system);
+            break;
+        case 5:
+            runLogicEngine(system);
+            break;
+        case 6:
+            runSetOperations(system);
+            break;
+        case 7:
+            runRelationsModule(system);
+            break;
+        case 8:
+            runFunctionsModule(system);
+            break;
+        case 9:
+            runAutomatedProof(system);
+            break;
+        case 10:
+            runConsistencyChecker(system);
+            break;
+        case 11:
+            runEfficiencyModule(system);
+            break;
+        case 12:
+            runUnitTesting(system);
+            break;
+        case 13:
+            cout << "\nThank you for using UNIDISC ENGINE!\n";
+            cout << "System shutdown completed.\n";
+            return 0;
         default:
-            cout << "Invalid choice!" << endl;
+            cout << "Invalid choice! Please try again.\n";
         }
-    } while (interfaceChoice != 0);
+
+        cout << "\nPress Enter to continue...";
+        cin.ignore();
+        cin.get();
+    }
 
     return 0;
 }

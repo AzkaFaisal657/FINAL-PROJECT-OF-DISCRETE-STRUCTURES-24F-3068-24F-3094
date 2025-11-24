@@ -1,26 +1,39 @@
 #pragma once
+#include <vector>
 #include <string>
-#include <iostream>
-using namespace std;
-
-struct LogicalRule {
-    string condition;
-    string action;
-    string ruleType;
-};
+#include <map>
+#include <functional>
+#include "Course.h"
+#include "Student.h"
+#include "Faculty.h"
 
 class LogicEngine {
 private:
-    LogicalRule rules[50];
-    int ruleCount;
+    std::vector<Course> allCourses;
+    std::vector<Student> allStudents;
+    std::vector<Faculty> allFaculty;
 
 public:
-    LogicEngine();
-    void addRule(string condition, string action, string ruleType);
-    bool checkRule(string fact) const;
-    void performModusPonens(string p, string implication, string& conclusion);
-    void performModusTollens(string notQ, string implication, string& conclusion);
-    void demonstrateLogicEngine();
-    void verifyFacultyAssignment(string faculty, string course, string lab);
-    void checkEnrollmentRules(string student, string course);
+    LogicEngine(const std::vector<Course>& courses, const std::vector<Student>& students, const std::vector<Faculty>& faculty);
+
+    bool evaluateRule(const std::string& rule);
+    bool checkFacultyAssignment(const std::string& facultyName, const std::string& courseCode, const std::string& labRoom = "");
+    bool checkPrerequisiteRule(const std::string& courseA, const std::string& courseB);
+    bool checkCreditLimitRule(const Student& student, int maxCredits = 18);
+    bool checkRoomCapacityRule(const std::string& courseCode, const std::string& roomId);
+    void validateAllRules();
+
+    // Propositional logic operations
+    bool logicalAND(bool a, bool b);
+    bool logicalOR(bool a, bool b);
+    bool logicalIMPLIES(bool a, bool b);
+    bool logicalNOT(bool a);
+    bool logicalIFF(bool a, bool b);
+
+private:
+    std::vector<std::string> tokenizeRule(const std::string& rule);
+    bool evaluateExpression(const std::vector<std::string>& tokens);
+    Faculty* findFacultyByName(const std::string& name);
+    Course* findCourseByCode(const std::string& courseCode);
+    Student* findStudentByRoll(const std::string& rollNumber);
 };

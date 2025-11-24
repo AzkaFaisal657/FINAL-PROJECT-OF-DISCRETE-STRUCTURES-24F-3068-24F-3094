@@ -1,23 +1,35 @@
 #pragma once
-#include "Course.h"
+#include <vector>
+#include <string>
+#include <map>
 #include "Student.h"
+#include "Course.h"
 #include "Faculty.h"
 #include "Room.h"
-#include <string>
-#include <vector>
-using namespace std;
 
 class ConflictDetector {
+private:
+    std::vector<Student> allStudents;
+    std::vector<Course> allCourses;
+    std::vector<Faculty> allFaculty;
+    std::vector<Room> allRooms;
+
 public:
-    static bool checkRoomCapacity(Room& room, int enrolledStudents);
-    static bool checkCreditLimit(Student& student, vector<Course*> courses, int maxCredits);
-    static bool detectPrerequisiteViolation(Student& student, Course& course, vector<Course*> allCourses);
-    static bool detectTeachingOverload(Faculty& faculty, int maxCourses);
-    static bool hasTimeConflict(string time1, string time2);
-    static void generateConflictReport(vector<Student*> students, vector<Course*> courses,
-        vector<Faculty*> faculty, vector<Room*> rooms);
+    ConflictDetector(const std::vector<Student>& students, const std::vector<Course>& courses,
+        const std::vector<Faculty>& faculty, const std::vector<Room>& rooms);
+
+    void checkAllConflicts();
+    void checkPrerequisiteConflicts();
+    void checkFacultyConflicts();
+    void checkCreditLimitConflicts();
+    void checkRoomConflicts();
+    void generateDetailedReport();
+
+    std::vector<std::string> getStudentsWithCreditOverload(int maxCredits = 18);
+    std::vector<std::string> getStudentsWithMissingPrerequisites();
+    std::vector<std::string> getFacultyWithOverload();
 
 private:
-    static const int MAX_CREDITS_PER_SEMESTER = 18;
-    static const int MAX_COURSES_PER_FACULTY = 4;
+    bool checkPrerequisiteForStudent(const Student& student, const std::string& courseCode);
+    int getFacultyCourseCount(const std::string& facultyId);
 };
