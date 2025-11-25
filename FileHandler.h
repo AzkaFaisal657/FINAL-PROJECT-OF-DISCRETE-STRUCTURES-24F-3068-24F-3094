@@ -1,10 +1,14 @@
-#pragma once
-#include <vector>
-#include <string>
+#ifndef FILEHANDLER_H
+#define FILEHANDLER_H
+
 #include "Course.h"
 #include "Student.h"
 #include "Faculty.h"
 #include "Room.h"
+#include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
 
 class FileHandler {
 public:
@@ -20,4 +24,8 @@ public:
 
 private:
     static std::vector<std::string> split(const std::string& str, char delimiter);
+    static void validateCourseData(const std::vector<std::string>& tokens);
+    static void validateStudentData(const std::vector<std::string>& tokens);
 };
+
+#endif

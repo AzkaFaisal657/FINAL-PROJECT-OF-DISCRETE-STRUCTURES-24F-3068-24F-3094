@@ -1,6 +1,9 @@
-#pragma once
+#ifndef COURSE_H
+#define COURSE_H
+
 #include <string>
 #include <vector>
+#include <iostream>
 
 class Course {
 private:
@@ -10,26 +13,31 @@ private:
     std::string type;
     int semester;
     std::string prerequisite;
+    std::vector<std::string> prerequisites;
 
 public:
-    Course(const std::string& code, const std::string& name, int creditHours,
-        const std::string& type, int semester, const std::string& prerequisite = "");
+    Course();
+    Course(std::string code, std::string name, int credits, std::string type, int sem, std::string prereq = "");
 
-    // Getters
     std::string getCode() const;
     std::string getName() const;
     int getCreditHours() const;
     std::string getType() const;
     int getSemester() const;
     std::string getPrerequisite() const;
+    std::vector<std::string> getPrerequisites() const;
 
-    // Setters
     void setCode(const std::string& code);
     void setName(const std::string& name);
-    void setCreditHours(int creditHours);
+    void setCreditHours(int credits);
     void setType(const std::string& type);
-    void setSemester(int semester);
-    void setPrerequisite(const std::string& prerequisite);
+    void setSemester(int sem);
+    void setPrerequisite(const std::string& prereq);
 
+    void addPrerequisite(const std::string& prereqCode);
+    bool hasPrerequisite(const std::string& prereqCode) const;
+    void display() const;
     std::string toString() const;
 };
+
+#endif

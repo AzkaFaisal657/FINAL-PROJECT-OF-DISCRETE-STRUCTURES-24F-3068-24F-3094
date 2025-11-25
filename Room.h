@@ -1,5 +1,8 @@
-#pragma once
+#ifndef ROOM_H
+#define ROOM_H
+
 #include <string>
+#include <iostream>
 
 class Room {
 private:
@@ -9,15 +12,14 @@ private:
     std::string status;
 
 public:
-    Room(const std::string& roomId, const std::string& type, int capacity, const std::string& status);
+    Room();
+    Room(const std::string& roomId, const std::string& type, int capacity, const std::string& status = "Available");
 
-    // Getters
     std::string getRoomId() const;
     std::string getType() const;
     int getCapacity() const;
     std::string getStatus() const;
 
-    // Setters
     void setRoomId(const std::string& roomId);
     void setType(const std::string& type);
     void setCapacity(int capacity);
@@ -25,3 +27,5 @@ public:
 
     std::string toString() const;
 };
+
+#endif

@@ -1,6 +1,9 @@
-#pragma once
+#ifndef FACULTY_H
+#define FACULTY_H
+
 #include <string>
 #include <vector>
+#include <iostream>
 
 class Faculty {
 private:
@@ -10,16 +13,15 @@ private:
     std::vector<std::string> assignedCourses;
 
 public:
+    Faculty();
     Faculty(const std::string& facultyId, const std::string& name,
-        const std::string& designation, const std::vector<std::string>& assignedCourses);
+        const std::string& designation, const std::vector<std::string>& assignedCourses = {});
 
-    // Getters
     std::string getFacultyId() const;
     std::string getName() const;
     std::string getDesignation() const;
     std::vector<std::string> getAssignedCourses() const;
 
-    // Setters
     void setFacultyId(const std::string& facultyId);
     void setName(const std::string& name);
     void setDesignation(const std::string& designation);
@@ -28,6 +30,7 @@ public:
     void assignCourse(const std::string& courseCode);
     void removeCourse(const std::string& courseCode);
     bool teachesCourse(const std::string& courseCode) const;
-
     std::string toString() const;
 };
+
+#endif

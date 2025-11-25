@@ -1,6 +1,8 @@
 #include "Room.h"
 #include <sstream>
 
+Room::Room() : roomId(""), type(""), capacity(0), status("Available") {}
+
 Room::Room(const std::string& roomId, const std::string& type, int capacity, const std::string& status)
     : roomId(roomId), type(type), capacity(capacity), status(status) {}
 

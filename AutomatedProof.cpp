@@ -50,6 +50,20 @@ void AutomatedProof::generatePrerequisiteProof(const std::string& statement) {
     std::cout << " -> All discrete rules maintained\n";
 }
 
+void AutomatedProof::generateAllProofs() {
+    std::cout << "\n=== COMPREHENSIVE AUTOMATED PROOFS ===" << std::endl;
+    std::cout << "Generating all system proofs..." << std::endl;
+    std::cout << "=========================================" << std::endl;
+
+    generatePrerequisiteProof("Database Systems requires Data Structures");
+    std::cout << "\n" << std::string(50, '=') << std::endl;
+    generateCreditLimitProof();
+    std::cout << "\n" << std::string(50, '=') << std::endl;
+    generateFacultyAssignmentProof();
+
+    std::cout << "\n=== ALL PROOFS COMPLETED ===" << std::endl;
+}
+
 void AutomatedProof::generateCreditLimitProof() {
     std::cout << "\n=== CREDIT LIMIT PROOF ===\n";
     int violations = 0;
@@ -191,3 +205,4 @@ void AutomatedProof::proveForStudent(const Student& student, const std::string& 
     }
     std::cout << "\n";
 }
+

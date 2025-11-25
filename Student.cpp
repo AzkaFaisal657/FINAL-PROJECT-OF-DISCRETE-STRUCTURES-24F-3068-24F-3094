@@ -1,7 +1,9 @@
 #include "Student.h"
 #include "Course.h"
-#include <sstream>
 #include <algorithm>
+#include <sstream>
+
+Student::Student() : rollNumber(""), name(""), currentSemester(1) {}
 
 Student::Student(const std::string& rollNumber, const std::string& name, int currentSemester,
     const std::vector<std::string>& enrolledCourses)
@@ -60,8 +62,14 @@ std::string Student::toString() const {
     std::ostringstream oss;
     oss << rollNumber << " - " << name << " (Semester " << currentSemester << ")";
     oss << "\nEnrolled Courses: ";
-    for (const auto& course : enrolledCourses) {
-        oss << course << " ";
+    for (size_t i = 0; i < enrolledCourses.size(); ++i) {
+        oss << enrolledCourses[i];
+        if (i < enrolledCourses.size() - 1) oss << ", ";
+    }
+    oss << "\nCompleted Courses: ";
+    for (size_t i = 0; i < completedCourses.size(); ++i) {
+        oss << completedCourses[i];
+        if (i < completedCourses.size() - 1) oss << ", ";
     }
     return oss.str();
 }

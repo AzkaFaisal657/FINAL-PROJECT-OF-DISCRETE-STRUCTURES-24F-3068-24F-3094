@@ -1,66 +1,99 @@
 ﻿#include "FunctionsModule.h"
 #include <iostream>
 #include <algorithm>
+#include <set>
 
 FunctionsModule::FunctionsModule(const std::vector<Course>& courses, const std::vector<Student>& students, const std::vector<Faculty>& faculty)
     : allCourses(courses), allStudents(students), allFaculty(faculty) {}
 
 void FunctionsModule::analyzeCourseToFaculty() {
-    std::cout << "\n-------------------------------------------------------------\n";
-    std::cout << "                FUNCTIONS & MAPPINGS MODULE\n";
-    std::cout << "-------------------------------------------------------------\n";
+    std::cout << "\n-------------------------------------------------------------" << std::endl;
+    std::cout << "                FUNCTIONS & MAPPINGS MODULE" << std::endl;
+    std::cout << "-------------------------------------------------------------" << std::endl;
 
     auto mapping = getCourseFacultyMapping();
     auto domain = getAllCourseCodes();
     auto codomain = getAllFacultyIds();
 
-    std::cout << "Checking f: Course → Faculty\n";
-    std::cout << "Total Courses: " << domain.size() << "\n";
+    std::cout << "Analyzing Function: f: Course → Faculty" << std::endl;
+    std::cout << "Domain: " << domain.size() << " courses" << std::endl;
+    std::cout << "Codomain: " << codomain.size() << " faculty" << std::endl;
+    std::cout << "Mapping Size: " << mapping.size() << " assignments" << std::endl;
 
     displayMappingProperties(mapping, domain, codomain, "Course → Faculty");
 
-    std::cout << "Generating inverse mapping (Faculty → Courses)...\n";
-    auto inverse = getInverseMapping(mapping);
-
-    std::cout << " → Completed\n";
-    for (const auto& faculty : allFaculty) {
-        std::cout << " → " << faculty.getName() << ": ";
-        bool first = true;
-        for (const auto& pair : mapping) {
-            if (pair.second == faculty.getFacultyId()) {
-                if (!first) std::cout << ", ";
-                std::cout << pair.first;
-                first = false;
+    // Show actual mappings
+    std::cout << "\nActual Course → Faculty Assignments:" << std::endl;
+    for (const auto& pair : mapping) {
+        std::string facultyName = "";
+        for (const auto& faculty : allFaculty) {
+            if (faculty.getFacultyId() == pair.second) {
+                facultyName = faculty.getName();
+                break;
             }
         }
-        std::cout << "\n";
+        std::cout << "  " << pair.first << " → " << facultyName << " (" << pair.second << ")" << std::endl;
     }
-
-    std::cout << "Function module operations completed successfully.\n";
 }
 
 void FunctionsModule::analyzeFacultyToCourse() {
-    auto mapping = getCourseFacultyMapping();
-    auto inverse = getInverseMapping(mapping);
+    auto mapping = getFacultyCourseMapping();
+    auto inverse = getInverseMapping(getCourseFacultyMapping());
     auto domain = getAllFacultyIds();
     auto codomain = getAllCourseCodes();
 
-    std::cout << "\nChecking f: Faculty → Course (Inverse)\n";
+    std::cout << "\nAnalyzing Function: f: Faculty → Course (Inverse)" << std::endl;
+    std::cout << "Domain: " << domain.size() << " faculty" << std::endl;
+    std::cout << "Codomain: " << codomain.size() << " courses" << std::endl;
+
     displayMappingProperties(inverse, domain, codomain, "Faculty → Course");
+
+    std::cout << "\nFaculty → Course Assignments:" << std::endl;
+    for (const auto& faculty : allFaculty) {
+        std::cout << "  " << faculty.getName() << " → ";
+        bool first = true;
+        for (const auto& courseCode : faculty.getAssignedCourses()) {
+            if (!first) std::cout << ", ";
+            std::cout << courseCode;
+            first = false;
+        }
+        std::cout << std::endl;
+    }
 }
 
 void FunctionsModule::analyzeStudentToCourseLoad() {
     auto mapping = getStudentCourseLoadMapping();
-    std::cout << "\nChecking f: Student → Course Load\n";
+    std::cout << "\nAnalyzing Function: f: Student → Course Load (Credits)" << std::endl;
 
-    std::cout << "Sample student course loads:\n";
+    std::cout << "Sample Student Course Loads:" << std::endl;
     int count = 0;
     for (const auto& student : allStudents) {
-        if (count++ < 5) {
-            std::cout << " → " << student.getRollNumber() << ": "
-                << mapping[student.getRollNumber()] << " credits\n";
+        if (count++ < 8) {
+            int credits = student.getCurrentCreditHours(allCourses);
+            std::cout << "  " << student.getRollNumber() << " → " << credits << " credits";
+            if (credits > 18) std::cout << " [OVERLOAD!]";
+            std::cout << std::endl;
         }
     }
+
+    // Statistical analysis
+    int totalCredits = 0;
+    int maxCredits = 0;
+    int overloadCount = 0;
+
+    for (const auto& student : allStudents) {
+        int credits = student.getCurrentCreditHours(allCourses);
+        totalCredits += credits;
+        if (credits > maxCredits) maxCredits = credits;
+        if (credits > 18) overloadCount++;
+    }
+
+    double avgCredits = static_cast<double>(totalCredits) / allStudents.size();
+
+    std::cout << "\nCourse Load Statistics:" << std::endl;
+    std::cout << "  Average credits: " << avgCredits << std::endl;
+    std::cout << "  Maximum credits: " << maxCredits << std::endl;
+    std::cout << "  Students overloaded (>18): " << overloadCount << std::endl;
 }
 
 void FunctionsModule::analyzeAllMappings() {
@@ -82,15 +115,15 @@ bool FunctionsModule::isInjective(const std::map<std::string, std::string>& mapp
 }
 
 bool FunctionsModule::isSurjective(const std::map<std::string, std::string>& mapping, const std::vector<std::string>& codomain) {
+    std::set<std::string> mappedValues;
+    for (const auto& pair : mapping) {
+        mappedValues.insert(pair.second);
+    }
+
     for (const auto& element : codomain) {
-        bool found = false;
-        for (const auto& pair : mapping) {
-            if (pair.second == element) {
-                found = true;
-                break;
-            }
+        if (mappedValues.find(element) == mappedValues.end()) {
+            return false;
         }
-        if (!found) return false;
     }
     return true;
 }
@@ -129,19 +162,33 @@ void FunctionsModule::displayMappingProperties(const std::map<std::string, std::
     const std::vector<std::string>& domain,
     const std::vector<std::string>& codomain,
     const std::string& mappingName) {
-    std::cout << "Injective?  " << (isInjective(mapping) ? "YES" : "NO");
+    std::cout << "\nFunction Properties for " << mappingName << ":" << std::endl;
+    std::cout << "Injective (One-to-One): " << (isInjective(mapping) ? "YES" : "NO") << std::endl;
+
     if (isInjective(mapping)) {
-        std::cout << "  (Each course has exactly one assigned faculty)";
+        std::cout << "  ✓ Each course has exactly one assigned faculty" << std::endl;
     }
-    std::cout << "\n";
-
-    std::cout << "Surjective? " << (isSurjective(mapping, codomain) ? "YES" : "NO");
-    if (!isSurjective(mapping, codomain)) {
-        std::cout << "   (Some faculty not teaching any course)";
+    else {
+        std::cout << "  ✗ Multiple courses may share the same faculty" << std::endl;
     }
-    std::cout << "\n";
 
-    std::cout << "Bijective?  " << (isBijective(mapping, codomain) ? "YES" : "NO") << "\n";
+    std::cout << "Surjective (Onto): " << (isSurjective(mapping, codomain) ? "YES" : "NO") << std::endl;
+
+    if (isSurjective(mapping, codomain)) {
+        std::cout << "  ✓ Every faculty teaches at least one course" << std::endl;
+    }
+    else {
+        std::cout << "  ✗ Some faculty may not be teaching any course" << std::endl;
+    }
+
+    std::cout << "Bijective (One-to-One Correspondence): " << (isBijective(mapping, codomain) ? "YES" : "NO") << std::endl;
+
+    if (isBijective(mapping, codomain)) {
+        std::cout << "  ✓ Perfect one-to-one mapping between courses and faculty" << std::endl;
+    }
+    else {
+        std::cout << "  ✗ Not a perfect one-to-one correspondence" << std::endl;
+    }
 }
 
 std::map<std::string, std::string> FunctionsModule::getCourseFacultyMapping() {
@@ -161,6 +208,23 @@ std::map<std::string, int> FunctionsModule::getStudentCourseLoadMapping() {
 
     for (const auto& student : allStudents) {
         mapping[student.getRollNumber()] = student.getCurrentCreditHours(allCourses);
+    }
+
+    return mapping;
+}
+
+std::map<std::string, std::string> FunctionsModule::getFacultyCourseMapping() {
+    std::map<std::string, std::string> mapping;
+
+    for (const auto& faculty : allFaculty) {
+        std::string courses = "";
+        bool first = true;
+        for (const auto& courseCode : faculty.getAssignedCourses()) {
+            if (!first) courses += ", ";
+            courses += courseCode;
+            first = false;
+        }
+        mapping[faculty.getFacultyId()] = courses;
     }
 
     return mapping;

@@ -1,11 +1,14 @@
-#pragma once
-#include <vector>
-#include <string>
-#include <map>
+#ifndef CONFLICTDETECTOR_H
+#define CONFLICTDETECTOR_H
+
 #include "Student.h"
 #include "Course.h"
 #include "Faculty.h"
 #include "Room.h"
+#include <vector>
+#include <string>
+#include <map>
+#include <iostream>
 
 class ConflictDetector {
 private:
@@ -13,6 +16,9 @@ private:
     std::vector<Course> allCourses;
     std::vector<Faculty> allFaculty;
     std::vector<Room> allRooms;
+
+    bool checkPrerequisiteForStudent(const Student& student, const std::string& courseCode);
+    int getFacultyCourseCount(const std::string& facultyId);
 
 public:
     ConflictDetector(const std::vector<Student>& students, const std::vector<Course>& courses,
@@ -28,8 +34,6 @@ public:
     std::vector<std::string> getStudentsWithCreditOverload(int maxCredits = 18);
     std::vector<std::string> getStudentsWithMissingPrerequisites();
     std::vector<std::string> getFacultyWithOverload();
-
-private:
-    bool checkPrerequisiteForStudent(const Student& student, const std::string& courseCode);
-    int getFacultyCourseCount(const std::string& facultyId);
 };
+
+#endif

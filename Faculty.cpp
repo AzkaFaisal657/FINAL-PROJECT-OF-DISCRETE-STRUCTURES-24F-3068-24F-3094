@@ -2,6 +2,8 @@
 #include <sstream>
 #include <algorithm>
 
+Faculty::Faculty() : facultyId(""), name(""), designation("") {}
+
 Faculty::Faculty(const std::string& facultyId, const std::string& name,
     const std::string& designation, const std::vector<std::string>& assignedCourses)
     : facultyId(facultyId), name(name), designation(designation), assignedCourses(assignedCourses) {}
@@ -37,8 +39,9 @@ std::string Faculty::toString() const {
     std::ostringstream oss;
     oss << facultyId << " - " << name << " (" << designation << ")";
     oss << "\nCourses: ";
-    for (const auto& course : assignedCourses) {
-        oss << course << " ";
+    for (size_t i = 0; i < assignedCourses.size(); ++i) {
+        oss << assignedCourses[i];
+        if (i < assignedCourses.size() - 1) oss << ", ";
     }
     return oss.str();
 }

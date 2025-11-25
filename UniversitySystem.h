@@ -1,11 +1,14 @@
-#pragma once
-#include <vector>
-#include <string>
+#ifndef UNIVERSITYSYSTEM_H
+#define UNIVERSITYSYSTEM_H
+
 #include "Course.h"
 #include "Student.h"
 #include "Faculty.h"
 #include "Room.h"
 #include "FileHandler.h"
+#include <vector>
+#include <string>
+#include <iostream>
 
 class UniversitySystem {
 private:
@@ -26,13 +29,11 @@ public:
     void loadAllData();
     void saveAllData();
 
-    // Getters
     std::vector<Course>& getCourses();
     std::vector<Student>& getStudents();
     std::vector<Faculty>& getFaculty();
     std::vector<Room>& getRooms();
 
-    // Utility methods
     Course* findCourse(const std::string& courseCode);
     Student* findStudent(const std::string& rollNumber);
     Faculty* findFaculty(const std::string& facultyId);
@@ -46,4 +47,11 @@ public:
     void displayAllCourses() const;
     void displayAllFaculty() const;
     void displayAllRooms() const;
+
+    void addCourse(const Course& course);
+    void addStudent(const Student& student);
+    void addFaculty(const Faculty& faculty);
+    void addRoom(const Room& room);
 };
+
+#endif
