@@ -1,12 +1,20 @@
-F001,Dr. Qamar uz Zaman,Professor,CS1002;CS2001;CS2005
-F002,Dr. Affan Rauf,Associate Professor,CS2006;CS3006;CS3001
-F003,Ms. Anmol Bilal,Lecturer,CS1004;CL1004;CL2001
-F004,Dr. Muhammad Moazam Fraz,Professor,SE1001;SE2001;SE3002
-F005,Dr. Naveed Ahmed,Associate Professor,AI2002;CS2009
-F006,Ms. Sarah Khan,Lecturer,CL2005;CL2006;CL3001
-F007,Dr. Ali Hassan,Professor,CS3002;CS4001
-F008,Ms. Fatima Noor,Lecturer,SS1012;SS1014;SS2012
-F009,Dr. Ahmed Raza,Associate Professor,SE2004;SE4002
-F010,Ms. Khadija Malik,Lecturer,MT1003;MT2005;CS1005
-F011,Dr. Bilal Khalid,Professor,EE1005;EE2003
-F012,Ms. Sumble Khan,Lecturer,CL1002;AL2002
+FAC-001,Dr. Ahmed Hassan,Professor,CS1002;CL1002
+FAC-002,Dr. Sarah Khan,Associate Professor,CS1004;CL1004
+FAC-003,Dr. Muhammad Ali,Professor,CS2001;CL2001
+FAC-004,Dr. Fatima Noor,Assistant Professor,CS2005;CL2005
+FAC-005,Dr. Omar Malik,Professor,CS2006;CL2006
+FAC-006,Dr. Ayesha Siddiqui,Associate Professor,AI2002;AL2002
+FAC-007,Dr. Hassan Raza,Professor,CS2009
+FAC-008,Dr. Zainab Ahmed,Assistant Professor,SE1001
+FAC-009,Dr. Ali Tariq,Associate Professor,SE2001
+FAC-010,Dr. Maria Farooq,Professor,SE2004
+FAC-011,Dr. Usman Khan,Assistant Professor,SE3002
+FAC-012,Dr. Hira Shah,Associate Professor,SE3004
+FAC-013,Dr. Bilal Mehmood,Professor,CS3001;CL3001
+FAC-014,Dr. Laiba Asif,Assistant Professor,CS3006
+FAC-015,Dr. Abdullah Khan,Associate Professor,SE4002
+FAC-016,Dr. Sana Iqbal,Professor,MT1003;MT1004
+FAC-017,Dr. Mohsin Raza,Assistant Professor,MT1008;MT2005
+FAC-018,Dr. Anum Ahmed,Associate Professor,NS1001
+FAC-019,Dr. Ibrahim Farooq,Professor,EE1005;EL1005
+FAC-020,Dr. Maryam Ali,Assistant Professor,EE2003;EL2003

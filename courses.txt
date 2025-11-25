@@ -16,7 +16,7 @@ MT1008,Multivariable Calculus,3,Core,2,
 CS1004,Object Oriented Programming,3,Core,2,CS1002
 CL1004,Object Oriented Programming Lab,1,Core,2,CL1002
 EE2003,Computer Organization and Assembly Language,3,Core,3,
-EL2003,Computer Organization and Assembly Language Lab,1,Core,3,EL2003
+EL2003,Computer Organization and Assembly Language Lab,1,Core,3,EE2003
 CS2001,Data Structures,3,Core,3,CS1004
 CL2001,Data Structures Lab,1,Core,3,CL1004
 CS1005,Discrete Structures,3,Core,3,
@@ -32,7 +32,7 @@ MT2005,Probability and Statistics,3,Core,4,
 SE2004,Software Design and Architecture,3,Core,4,SE1001
 SE2001,Software Requirements Engineering,3,Core,4,SE1001
 AI2002,Artificial Intelligence,3,Core,5,CS2001
-AL2002,Artificial Intelligence Lab,1,Core,5,AL2002
+AL2002,Artificial Intelligence Lab,1,Core,5,AI2002
 CS2009,Design and Analysis of Algorithms,3,Core,5,CS2001
 SE3004,Software Construction and Development,2,Core,5,SE2004
 SE3002,Software Quality Engineering,3,Core,5,SE2001
