@@ -13,9 +13,7 @@
 #include "ConflictDetector.h"
 #include "EfficiencyModule.h"
 #include "TestModule.h"
-
-// Note: GUI.h is commented out as it may not be available
-// #include "GUI.h"
+#include "GUI.h"
 
 void displayHeader() {
     std::cout << "=============================================================\n";
@@ -25,6 +23,15 @@ void displayHeader() {
     std::cout << "=============================================================\n";
     std::cout << "        Modeling | Verification | Constraints | Consistency\n";
     std::cout << "=============================================================\n";
+}
+
+void displayInterfaceMenu() {
+    std::cout << "\n-------------------------------------------------------------\n";
+    std::cout << "                    SELECT INTERFACE MODE\n";
+    std::cout << "-------------------------------------------------------------\n";
+    std::cout << "1. Console Interface (Text-based)\n";
+    std::cout << "2. GUI Interface (Graphical - SFML)\n";
+    std::cout << "\n>> Enter choice: ";
 }
 
 void displayMainMenu() {
@@ -499,12 +506,26 @@ int main() {
     std::cout << " -> Consistency Checker: ACTIVE\n";
     std::cout << " -> Student-Course Relations Verified\n";
 
+    // ADDED: Interface Selection
+    displayInterfaceMenu();
+
+    int interfaceChoice;
+    std::cin >> interfaceChoice;
+
+    if (interfaceChoice == 2) {
+        // GUI Interface
+        std::cout << "\nStarting GUI Interface...\n";
+        GUI gui(&system);
+        gui.run();
+        return 0;
+    }
+
+    // Console Interface (default)
+    std::cout << "\nStarting Console Interface...\n";
+
     std::cout << "\n=============================================================\n";
     std::cout << "                    SYSTEM READY\n";
     std::cout << "=============================================================\n";
-
-    // For now, we'll use only console interface since GUI might not be available
-    std::cout << "Starting Console Interface...\n";
 
     // Console Interface
     while (true) {
